@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { HeroSection } from "@/components/ui/hero-section"
+
 import NewsInfo from "@/components/news/news-info"
 import NewsInfoTwo from "@/components/news/news-info-two"
 import NewsInfoThree from "@/components/news/news-three"
@@ -8,6 +8,7 @@ import NewsLast from "@/components/news/news-last"
 import { ShareSection } from "@/components/news/share-section"
 import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
+import { HeroSection } from "@/components/ui/hero-section"
 
 // Fetch news item from Sanity
 async function getNewsItem(slug: string) {
@@ -70,25 +71,25 @@ export default async function NewsItemPage({ params }: { params: { slug: string 
 
   // Process section images
   const sectionOneImages =
-    newsItem.sectionOne?.images?.map((img) => ({
+    newsItem.sectionOne?.images?.map((img: { alt?: string; url: string }) => ({
       src: urlFor(img).url(),
       alt: img.alt || "News image",
     })) || []
 
   const sectionTwoImages =
-    newsItem.sectionTwo?.images?.map((img) => ({
+    newsItem.sectionTwo?.images?.map((img: { alt?: string; url: string }) => ({
       src: urlFor(img).url(),
       alt: img.alt || "News image",
     })) || []
 
   const sectionThreeImages =
-    newsItem.sectionThree?.images?.map((img) => ({
+    newsItem.sectionThree?.images?.map((img: { alt?: string; url: string }) => ({
       src: urlFor(img).url(),
       alt: img.alt || "News image",
     })) || []
 
   const sectionFourImages =
-    newsItem.sectionFour?.images?.map((img) => ({
+    newsItem.sectionFour?.images?.map((img: { alt?: string; url: string }) => ({
       src: urlFor(img).url(),
       alt: img.alt || "News image",
     })) || []
