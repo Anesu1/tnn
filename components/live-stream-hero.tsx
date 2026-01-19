@@ -1,12 +1,42 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Radio, Users } from "lucide-react"
+import { client } from "@/sanity/lib/client"
+
+interface LiveStream {
+  title: string
+  description: string
+  videoId: string
+  viewers: number
+  startedAt: string
+}
 
 export function LiveStreamHero() {
-  // Replace this with your actual YouTube Live stream video ID
-  const youtubeVideoId = "jfKfPfyJRdk" // Example live stream
+  const [liveStream, setLiveStream] = useState<LiveStream | null>(null)
+
+  useEffect(() => {
+    const fetchLiveStream = async () => {
+      const query = `*[_type == "liveStream" && isActive == true][0] {
+        title,
+        description,
+        videoId,
+        viewers,
+        startedAt
+      }`
+
+      const data = await client.fetch(query)
+      setLiveStream(data)
+    }
+
+    fetchLiveStream()
+  }, [])
+
+  if (!liveStream) {
+    return null // Render nothing if no live stream is active
+  }
 
   return (
     <section className="container mx-auto px-4 py-8 md:py-12">
@@ -18,11 +48,11 @@ export function LiveStreamHero() {
           </Badge>
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Users className="h-4 w-4" />
-            <span>12,453 watching</span>
+            <span>{liveStream.viewers} watching</span>
           </div>
         </div>
         <h1 className="text-3xl md:text-5xl font-bold text-balance leading-tight">
-          Breaking News Coverage: Live Updates
+          {liveStream.title}
         </h1>
       </div>
 
@@ -30,7 +60,7 @@ export function LiveStreamHero() {
         <iframe
           width="100%"
           height="100%"
-          src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=0&rel=0`}
+          src={`https://www.youtube.com/embed/${liveStream.videoId}?autoplay=0&rel=0`}
           title="Live Stream"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
@@ -40,10 +70,9 @@ export function LiveStreamHero() {
 
       <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <p className="text-muted-foreground text-sm mb-1">Started 2 hours ago</p>
+          <p className="text-muted-foreground text-sm mb-1">Started {liveStream.startedAt}</p>
           <p className="text-sm leading-relaxed max-w-3xl">
-            Join us for comprehensive coverage of today&apos;s most important stories. Our team brings you live updates,
-            expert analysis, and on-the-ground reporting as events unfold.
+            {liveStream.description}
           </p>
         </div>
         <Button size="lg" className="shrink-0">

@@ -1,33 +1,39 @@
+"use client"
+import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp } from "lucide-react"
 import Image from "next/image"
+import { client } from "@/sanity/lib/client"
 
-const trendingStories = [
-  {
-    id: 1,
-    title: "Global Climate Summit Reaches Historic Agreement",
-    category: "Environment",
-    image: "/climate-summit-global.png",
-    time: "15 min ago",
-  },
-  {
-    id: 2,
-    title: "Tech Giants Announce Revolutionary AI Partnership",
-    category: "Technology",
-    image: "/technology-ai.jpg",
-    time: "1 hour ago",
-  },
-  {
-    id: 3,
-    title: "Markets Rally on Economic Recovery Signs",
-    category: "Business",
-    image: "/stock-market-analysis.png",
-    time: "2 hours ago",
-  },
-]
+interface TrendingStory {
+  _id: string
+  title: string
+  category: string
+  image: string
+  publishedAt: string
+}
 
 export function TrendingNews() {
+  const [trendingStories, setTrendingStories] = useState<TrendingStory[]>([])
+
+  useEffect(() => {
+    const fetchTrendingStories = async () => {
+      const query = `*[_type == "newsItem" && trending == true] | order(publishedAt desc) {
+        _id,
+        title,
+        "category": categories[0]->title,
+        "image": mainImage.asset->url,
+        publishedAt
+      }`
+
+      const data = await client.fetch(query)
+      setTrendingStories(data)
+    }
+
+    fetchTrendingStories()
+  }, [])
+
   return (
     <section className="bg-muted/30 py-12 md:py-16">
       <div className="container mx-auto px-4">
@@ -38,7 +44,7 @@ export function TrendingNews() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {trendingStories.map((story) => (
-            <Card key={story.id} className="group overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+            <Card key={story._id} className="group overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
               <div className="relative aspect-video overflow-hidden">
                 <Image
                   src={story.image || "/placeholder.svg"}
@@ -48,11 +54,11 @@ export function TrendingNews() {
                 />
                 <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground">{story.category}</Badge>
               </div>
-              <div className="p-5">
-                <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors leading-tight">
+              <div className="p-4">
+                <h3 className="font-medium text-lg mb-2 group-hover:text-accent transition-colors">
                   {story.title}
                 </h3>
-                <p className="text-sm text-muted-foreground">{story.time}</p>
+                <p className="text-sm text-muted-foreground">{new Date(story.publishedAt).toLocaleString()}</p>
               </div>
             </Card>
           ))}

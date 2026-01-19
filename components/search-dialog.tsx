@@ -1,30 +1,48 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import Link from "next/link"
+import { client } from "@/sanity/lib/client"
 
 interface SearchDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
+interface SearchResult {
+  _id: string
+  title: string
+  category: string
+  slug: string
+}
+
 export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
   const [searchQuery, setSearchQuery] = useState("")
+  const [results, setResults] = useState<SearchResult[]>([])
 
-  // Mock search results - replace with real search logic
-  const mockResults = [
-    { id: 1, title: "Breaking: Climate Summit Reaches Historic Agreement", category: "Politics", url: "/news" },
-    { id: 2, title: "Tech Giants Announce New AI Partnership", category: "Technology", url: "/news" },
-    { id: 3, title: "Markets Rally on Economic Reports", category: "Business", url: "/news" },
-    { id: 4, title: "Scientists Discover New Species in Amazon", category: "Science", url: "/news" },
-  ]
+  useEffect(() => {
+    const fetchResults = async () => {
+      if (searchQuery.trim() === "") {
+        setResults([])
+        return
+      }
 
-  const filteredResults = searchQuery
-    ? mockResults.filter((result) => result.title.toLowerCase().includes(searchQuery.toLowerCase()))
-    : mockResults
+      const query = `*[_type == "newsItem" && title match $searchQuery] {
+        _id,
+        title,
+        "category": categories[0]->title,
+        "slug": slug.current
+      }`
+
+      const data = await client.fetch(query, { searchQuery: `${searchQuery}*` })
+      setResults(data)
+    }
+
+    fetchResults()
+  }, [searchQuery])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -45,13 +63,13 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
           />
         </div>
 
-        <div className="mt-4 max-h-[400px] overflow-y-auto">
-          {filteredResults.length > 0 ? (
+        <div className="mt-4 max-h-100 overflow-y-auto">
+          {results.length > 0 ? (
             <div className="space-y-2">
-              {filteredResults.map((result) => (
+              {results.map((result) => (
                 <Link
-                  key={result.id}
-                  href={result.url}
+                  key={result._id}
+                  href={`/news/${result.slug}`}
                   onClick={() => onOpenChange(false)}
                   className="block rounded-lg border p-3 hover:bg-accent transition-colors"
                 >
