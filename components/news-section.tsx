@@ -6,10 +6,12 @@ import { client } from "@/sanity/lib/client";
 interface Category {
   id: string;
   title: string;
+  slug: string;
   description: string;
   color: string;
   featured: boolean;
   order: number;
+  icon?: string; // Added optional icon field
 }
 
 export function NewsSection() {
@@ -21,11 +23,13 @@ export function NewsSection() {
         `*[_type == "category" && featured == true] | order(order asc) {
           _id,
           title,
+          "slug":slug.current,
           description,
           "id": _id,
           color,
           featured,
-          order
+          order,
+          icon // Fetching optional icon field
         }`
       );
       setCategories(data);
@@ -45,10 +49,16 @@ export function NewsSection() {
                 className="p-4 rounded-full mb-4"
                 style={{ backgroundColor: category.color }}
               >
-                {/* Placeholder for category icon if needed */}
+                {category.icon && (
+                  <img
+                    src={category.icon}
+                    alt={`${category.title} icon`}
+                    className="w-12 h-12 object-contain"
+                  />
+                )}
               </div>
               <Link
-                href={`/categories/${category.id}`}
+                href={`/categories/${category.slug}`}
                 className="font-medium text-foreground hover:text-primary transition-colors"
               >
                 {category.title}

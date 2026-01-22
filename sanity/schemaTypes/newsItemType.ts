@@ -67,180 +67,16 @@ export default {
             of: [{ type: "reference", to: { type: "category" } }],
         },
         {
-            name: "sectionOne",
-            title: "Section One",
-            type: "object",
-            fields: [
-
+            name: "content",
+            title: "Content",
+            type: "array",
+            of: [
+                { type: "block" },
                 {
-                    name: "text",
-                    title: "Text",
-                    type: "text",
-                },
-                {
-                    name: "images",
-                    title: "Images",
-                    type: "array",
-                    of: [
-                        {
-                            type: "image",
-                            options: {
-                                hotspot: true,
-                            },
-                            fields: [
-                                {
-                                    name: "alt",
-                                    type: "string",
-                                    title: "Alternative text",
-                                    description: "Important for SEO and accessibility",
-                                },
-                            ],
-                        },
-                    ],
-                    validation: (Rule: { max: (arg0: number) => any }) => Rule.max(4),
-                },
-            ],
-        },
-        {
-            name: "sectionTwo",
-            title: "Section Two",
-            type: "object",
-            fields: [
-                {
-                    name: "heading",
-                    title: "Heading",
-                    type: "string",
-                },
-                {
-                    name: "text",
-                    title: "Text",
-                    type: "text",
-                },
-                {
-                    name: "images",
-                    title: "Images",
-                    type: "array",
-                    of: [
-                        {
-                            type: "image",
-                            options: {
-                                hotspot: true,
-                            },
-                            fields: [
-                                {
-                                    name: "alt",
-                                    type: "string",
-                                    title: "Alternative text",
-                                    description: "Important for SEO and accessibility",
-                                },
-                            ],
-                        },
-                    ],
-                    validation: (Rule: { max: (arg0: number) => any }) => Rule.max(4),
-                },
-            ],
-        },
-        {
-            name: "sectionThree",
-            title: "Section Three",
-            type: "object",
-            fields: [
-                {
-                    name: "heading",
-                    title: "Heading",
-                    type: "string",
-                },
-                {
-                    name: "text",
-                    title: "Text",
-                    type: "text",
-                },
-                {
-                    name: "images",
-                    title: "Images",
-                    type: "array",
-                    of: [
-                        {
-                            type: "image",
-                            options: {
-                                hotspot: true,
-                            },
-                            fields: [
-                                {
-                                    name: "alt",
-                                    type: "string",
-                                    title: "Alternative text",
-                                    description: "Important for SEO and accessibility",
-                                },
-                            ],
-                        },
-                    ],
-                    validation: (Rule: { max: (arg0: number) => any }) => Rule.max(2),
-                },
-            ],
-        },
-        {
-            name: "sectionFour",
-            title: "Section Four",
-            type: "object",
-            fields: [
-                {
-                    name: "heading",
-                    title: "Heading",
-                    type: "string",
-                },
-                {
-                    name: "text",
-                    title: "Text",
-                    type: "text",
-                },
-                {
-                    name: "images",
-                    title: "Images",
-                    type: "array",
-                    of: [
-                        {
-                            type: "image",
-                            options: {
-                                hotspot: true,
-                            },
-                            fields: [
-                                {
-                                    name: "alt",
-                                    type: "string",
-                                    title: "Alternative text",
-                                    description: "Important for SEO and accessibility",
-                                },
-                            ],
-                        },
-                    ],
-                    validation: (Rule: { max: (arg0: number) => any }) => Rule.max(4),
-                },
-            ],
-        },
-        {
-            name: "conclusion",
-            title: "Conclusion",
-            type: "object",
-            fields: [
-                {
-                    name: "heading",
-                    title: "Heading",
-                    type: "string",
-                },
-                {
-                    name: "text",
-                    title: "Text",
-                    type: "text",
-                },
-                
-            ],
-        },
-        {
-                    name: "conclusionImage",
-                    title: "Conclusion Image",
                     type: "image",
-                    options: { hotspot: true },
+                    options: {
+                        hotspot: true,
+                    },
                     fields: [
                         {
                             name: "alt",
@@ -250,7 +86,15 @@ export default {
                         },
                     ],
                 },
-
+            ],
+        },
+        {
+            name: "trending",
+            title: "Trending",
+            type: "boolean",
+            description: "Mark this article as trending",
+            initialValue: false,
+        },
     ],
 
     preview: {

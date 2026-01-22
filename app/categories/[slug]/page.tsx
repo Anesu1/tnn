@@ -1,31 +1,24 @@
-"use client"
-import { useEffect, useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Calendar, Clock } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { client } from "@/sanity/lib/client"
+import { notFound } from "next/navigation";
+import { client } from "@/sanity/lib/client";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, Clock } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
-interface Article {
-  _id: string
-  title: string
-  excerpt: string
-  category: string
-  author: string
-  publishedAt: string
-  readTime: string
-  image: string
-  slug: string // Added slug for linking to article details
-}
+async function getCategoryNews(categorySlug: string) {
+  try {
+    console.log("Category slug received from params:", categorySlug);
 
-export function LatestArticles() {
-  const [articles, setArticles] = useState<Article[]>([])
+    if (!categorySlug) {
+      console.error("Category slug is missing or undefined.");
+      return null;
+    }
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      const query = `*[_type == "newsItem"] | order(publishedAt desc) {
+    const data = await client.fetch(
+      `*[_type == "newsItem" &&
+        references(*[_type == "category" && slug.current == $categorySlug]._id)
+      ] | order(publishedAt desc) {
         _id,
         title,
         excerpt,
@@ -34,20 +27,33 @@ export function LatestArticles() {
         publishedAt,
         readTime,
         "image": mainImage.asset->url,
-        "slug": slug.current // Fetching slug for linking
-      }`
+        "slug": slug.current
+      }`,
+      { categorySlug }
+    );
 
-      const data = await client.fetch(query)
-      setArticles(data)
-    }
+    console.log("Fetched data for category:", data);
 
-    fetchArticles()
-  }, [])
+    return data;
+  } catch (error) {
+    console.error("Error fetching category news:", error);
+    return null;
+  }
+}
+
+export default async function CategoryPage({ params }: { params: { slug: string } }) {
+  const { slug } = params;
+
+  const articles = await getCategoryNews(slug);
+
+  if (!articles || articles.length === 0) {
+    notFound();
+  }
 
   return (
-    <section className="py-12 md:py-16">
+    <main className="py-12 md:py-16">
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold mb-8">Latest Articles</h2>
+        <h1 className="text-3xl font-bold mb-8">Category: {slug}</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {articles.map((article) => (
@@ -84,11 +90,7 @@ export function LatestArticles() {
             </Link>
           ))}
         </div>
-
-        <div className="mt-8 text-center">
-          <Button size="lg">View All Articles</Button>
-        </div>
       </div>
-    </section>
-  )
+    </main>
+  );
 }

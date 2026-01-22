@@ -1,64 +1,78 @@
 import { notFound } from "next/navigation"
+import { PortableText, PortableTextComponents } from "@portabletext/react"
 
-import NewsInfo from "@/components/news/news-info"
-import NewsInfoTwo from "@/components/news/news-info-two"
-import NewsInfoThree from "@/components/news/news-three"
-import NewsInfoFour from "@/components/news/news-info-four"
-import NewsLast from "@/components/news/news-last"
-import { ShareSection } from "@/components/news/share-section"
 import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
 import { HeroSection } from "@/components/ui/hero-section"
+import { ShareSection } from "@/components/news/share-section"
 
 // Fetch news item from Sanity
 async function getNewsItem(slug: string) {
-  return await client.fetch(
-    `*[_type == "newsItem" && slug.current == $slug][0]{
-      title,
-      slug,
-      publishedAt,
-      readTime,
-      mainImage,
-      excerpt,
-      content,
-      "author": author->name,
-      sectionOne {
-        text,
-        images
-      },
-      sectionTwo {
-        heading,
-        text,
-        images
-      },
-      sectionThree {
-        heading,
-        text,
-        images
-      },
-      sectionFour {
-        heading,
-        text,
-        images
-      },
-      conclusion {
-        heading,
-        text
-      },
-      conclusionImage
-    }`,
-    { slug },
-  )
+  try {
+    if (!slug) {
+      console.error("Slug is undefined or null.")
+      return null
+    }
+
+    console.log("Fetching news item with slug:", slug)
+
+    const data = await client.fetch(
+      `*[_type == "newsItem" && slug.current == $slug][0]{
+        title,
+        slug,
+        publishedAt,
+        readTime,
+        mainImage,
+        excerpt,
+        content,
+        "author": author->name
+      }`,
+      { slug }
+    )
+
+    return data
+  } catch (error) {
+    console.error("Error fetching news item:", error)
+    return null
+  }
 }
 
-export default async function NewsItemPage({ params }: { params: { slug: string } }) {
-  const newsItem = await getNewsItem(params.slug)
+interface PageProps {
+  params: Promise<{ slug: string }>
+}
+
+// Define custom serializers for PortableText
+const portableTextComponents: PortableTextComponents = {
+  types: {
+    image: ({ value }) => {
+      if (!value?.asset?._ref) {
+        return null
+      }
+      return (
+        <div className="my-4">
+          <img
+            src={urlFor(value).url()}
+            alt={value.alt || "Image"}
+            className="rounded-lg mx-auto"
+          />
+        </div>
+      )
+    },
+  },
+}
+
+export default async function NewsItemPage({ params }: PageProps) {
+  // ✅ unwrap params
+  const { slug } = await params
+
+  console.log("Resolved slug:", slug)
+
+  const newsItem = await getNewsItem(slug)
 
   if (!newsItem) {
     notFound()
   }
 
-  // Format the date
   const formattedDate = newsItem.publishedAt
     ? new Date(newsItem.publishedAt).toLocaleDateString("en-US", {
         day: "numeric",
@@ -67,35 +81,10 @@ export default async function NewsItemPage({ params }: { params: { slug: string 
       })
     : ""
 
-  const mainImageUrl = newsItem.mainImage ? urlFor(newsItem.mainImage).url() : "/images/testing12.webp"
+  const mainImageUrl = newsItem.mainImage
+    ? urlFor(newsItem.mainImage).url()
+    : "/images/testing12.webp"
 
-  // Process section images
-  const sectionOneImages =
-    newsItem.sectionOne?.images?.map((img: { alt?: string; url: string }) => ({
-      src: urlFor(img).url(),
-      alt: img.alt || "News image",
-    })) || []
-
-  const sectionTwoImages =
-    newsItem.sectionTwo?.images?.map((img: { alt?: string; url: string }) => ({
-      src: urlFor(img).url(),
-      alt: img.alt || "News image",
-    })) || []
-
-  const sectionThreeImages =
-    newsItem.sectionThree?.images?.map((img: { alt?: string; url: string }) => ({
-      src: urlFor(img).url(),
-      alt: img.alt || "News image",
-    })) || []
-
-  const sectionFourImages =
-    newsItem.sectionFour?.images?.map((img: { alt?: string; url: string }) => ({
-      src: urlFor(img).url(),
-      alt: img.alt || "News image",
-    })) || []
-
-  const conclusionImage = newsItem.conclusionImage ? urlFor(newsItem.conclusionImage).url() : ""
-    
   return (
     <main>
       <HeroSection
@@ -106,37 +95,14 @@ export default async function NewsItemPage({ params }: { params: { slug: string 
         textPosition="bottom-left"
         height="h-[60vh] md:h-[70vh] lg:h-[100vh]"
       />
-      <NewsInfo
-        content={newsItem.sectionOne?.text}
-        images={sectionOneImages}
-      />
-     
-        <NewsInfoTwo
-          heading={newsItem.sectionTwo.heading}
-          content={newsItem.sectionTwo.text}
-          images={sectionTwoImages}
+
+      <div className="prose mx-auto px-4 sm:px-6 lg:px-8">
+        <PortableText
+          value={newsItem.content}
+          components={portableTextComponents}
         />
-     
-        <NewsInfoThree
-          heading={newsItem.sectionThree.heading}
-          content={newsItem.sectionThree.text}
-          images={sectionThreeImages}
-        />
-      
-      
-        <NewsInfoFour
-          heading={newsItem.sectionFour.heading}
-          content={newsItem.sectionFour.text}
-          images={sectionFourImages}
-        />
-     
-    
-        <NewsLast 
-        heading={newsItem.conclusion.heading}
-         content={newsItem.conclusion.text}
-         imageAlt={newsItem.conclusionImage.alt}
-          imageUrl={conclusionImage} />
-     
+      </div>
+
       <ShareSection />
     </main>
   )

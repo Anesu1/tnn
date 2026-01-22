@@ -1,6 +1,16 @@
 import { TagIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
 
+// Updated the schema to include fixed categories and ensure compliance with requirements
+const fixedCategories = [
+  'Breaking News',
+  'Politics & Governance',
+  'Business & Economy',
+  'Social & Community Affairs',
+  'Creative & Cultural Industries',
+  'Sports & Entertainment',
+]
+
 export const categoryType = defineType({
   name: 'category',
   title: 'Category',
@@ -12,7 +22,13 @@ export const categoryType = defineType({
     defineField({
       name: 'title',
       type: 'string',
-      validation: Rule => Rule.required(),
+      validation: Rule =>
+        Rule.required().custom(value => {
+          if (!fixedCategories.includes(value)) {
+            return `Title must be one of the fixed categories: ${fixedCategories.join(', ')}`
+          }
+          return true
+        }),
     }),
 
     // Internal stable key (important for logic)
