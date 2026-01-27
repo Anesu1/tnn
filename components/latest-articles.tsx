@@ -65,10 +65,10 @@ export function LatestArticles() {
                   </Badge>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-medium text-lg mb-2 group-hover:text-accent transition-colors">
+                  <h3 className="font-medium line-clamp-2 text-lg mb-2 group-hover:text-accent transition-colors">
                     {article.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground mb-2">{article.excerpt}</p>
+                  <p className="text-sm text-muted-foreground mb-2 line-clamp-3">{article.excerpt}</p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />

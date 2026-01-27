@@ -4,6 +4,7 @@ import { TrendingNews } from "@/components/trending-news"
 import { LatestArticles } from "@/components/latest-articles"
 import { Footer } from "@/components/footer"
 import { NewsSection } from "@/components/news-section"
+import Link from "next/link"
 
 export default function HomePage() {
   return (
@@ -11,10 +12,17 @@ export default function HomePage() {
       <Header />
       <main className="flex-1">
         <LiveStreamHero />
-         <NewsSection />
+        <NewsSection />
         <TrendingNews />
         <LatestArticles />
-       
+
+        <div className="text-center my-8">
+          <Link href="/news">
+            <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              View All Articles
+            </button>
+          </Link>
+        </div>
       </main>
       <Footer />
     </div>

@@ -43,7 +43,7 @@ export function TrendingNews() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {trendingStories.map((story) => (
+          {trendingStories.slice(0,3).map((story) => (
             <Card key={story._id} className="group overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
               <div className="relative aspect-video overflow-hidden">
                 <Image
