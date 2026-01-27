@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { TrendingUp } from "lucide-react"
 import Image from "next/image"
 import { client } from "@/sanity/lib/client"
+import Link from "next/link"
 
 interface TrendingStory {
   _id: string
@@ -12,6 +13,7 @@ interface TrendingStory {
   category: string
   image: string
   publishedAt: string
+  slug: string
 }
 
 export function TrendingNews() {
@@ -22,6 +24,7 @@ export function TrendingNews() {
       const query = `*[_type == "newsItem" && trending == true] | order(publishedAt desc) {
         _id,
         title,
+        "slug": slug.current,
         "category": categories[0]->title,
         "image": mainImage.asset->url,
         publishedAt
@@ -44,7 +47,8 @@ export function TrendingNews() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {trendingStories.slice(0,3).map((story) => (
-            <Card key={story._id} className="group overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+            <Link key={story._id} href={`/news/${story.slug}`} >
+            <Card className="group overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
               <div className="relative aspect-video overflow-hidden">
                 <Image
                   src={story.image || "/placeholder.svg"}
@@ -60,7 +64,8 @@ export function TrendingNews() {
                 </h3>
                 <p className="text-sm text-muted-foreground">{new Date(story.publishedAt).toLocaleString()}</p>
               </div>
-            </Card>
+            </Card> </Link>
+           
           ))}
         </div>
       </div>

@@ -85,9 +85,7 @@ export function LatestArticles() {
           ))}
         </div>
 
-        <div className="mt-8 text-center">
-          <Button size="lg">View All Articles</Button>
-        </div>
+        
       </div>
     </section>
   )

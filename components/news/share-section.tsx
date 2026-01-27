@@ -23,7 +23,7 @@ export function ShareSection({
     let shareLink = "";
 
     switch (platform) {
-      case "email":
+      case "email":     
         shareLink = `mailto:?subject=${encodedTitle}&body=${encodedUrl}`;
         break;
       case "facebook":

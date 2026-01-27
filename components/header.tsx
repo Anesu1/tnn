@@ -43,9 +43,9 @@ export function Header() {
           <Button variant="ghost" size="icon" className="hidden sm:flex" onClick={() => setSearchOpen(true)}>
             <Search className="h-5 w-5" />
           </Button>
-          <Button className="hidden sm:flex" onClick={() => setSubscribeOpen(true)}>
+          {/* <Button className="hidden sm:flex" onClick={() => setSubscribeOpen(true)}>
             Subscribe
-          </Button>
+          </Button> */}
           <Button variant="ghost" size="icon" className="md:hidden">
             <Menu className="h-5 w-5" />
           </Button>

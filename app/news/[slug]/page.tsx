@@ -5,6 +5,8 @@ import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
 import { HeroSection } from "@/components/ui/hero-section"
 import { ShareSection } from "@/components/news/share-section"
+import { Footer } from "@/components/footer"
+import { Header } from "@/components/header"
 
 // Fetch news item from Sanity
 async function getNewsItem(slug: string) {
@@ -86,7 +88,9 @@ export default async function NewsItemPage({ params }: PageProps) {
     : "/images/testing12.webp"
 
   return (
+    <>
     <main>
+      <Header />
       <HeroSection
         backgroundImage={mainImageUrl}
         backgroundAlt={newsItem.mainImage?.alt || "Filmmakers silhouette at sunset"}
@@ -96,7 +100,7 @@ export default async function NewsItemPage({ params }: PageProps) {
         height="h-[60vh] md:h-[70vh] lg:h-[100vh]"
       />
 
-      <div className="prose mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="prose mx-auto px-4 py-[5%] sm:px-6 md:px-[5%] space-y-5 lg:px-[15%]">
         <PortableText
           value={newsItem.content}
           components={portableTextComponents}
@@ -105,5 +109,8 @@ export default async function NewsItemPage({ params }: PageProps) {
 
       <ShareSection />
     </main>
+     <Footer />
+    </>
+    
   )
 }

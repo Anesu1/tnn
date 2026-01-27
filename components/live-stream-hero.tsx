@@ -34,9 +34,9 @@ export function LiveStreamHero() {
     fetchLiveStream()
   }, [])
 
-  if (!liveStream) {
-    return null // Render nothing if no live stream is active
-  }
+  // if (!liveStream) {
+  //   return null // Render nothing if no live stream is active
+  // }
 
   return (
     <section className="container mx-auto px-4 py-8 md:py-12">

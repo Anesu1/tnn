@@ -84,7 +84,7 @@ export function HeroSection({
         <div className={cn("max-w-4xl", alignClasses[textAlign])}>
           {heading && (
             <h1
-              className={cn("text-[50px] md:text-6xl lg:text-[90px] font-bold text-white tracking-tight", headingClassName)}
+              className={cn("text-[50px] md:text-6xl font-bold text-white tracking-tight", headingClassName)}
             >
               {heading}
             </h1>

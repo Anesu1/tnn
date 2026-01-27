@@ -8,10 +8,10 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded bg-primary text-primary-foreground font-bold text-lg">
-                N
-              </div>
-              <span className="font-bold text-xl">NewsStream</span>
+             <Link href="/" className="flex flex-col items-start gap-1">
+            <span className="text-2xl font-bold text-primary">The Narrative Network</span>
+            <span className="text-sm text-muted-foreground">Redefining Africa's Narrative</span>
+          </Link>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Your trusted source for live news streaming and in-depth reporting on global events.
