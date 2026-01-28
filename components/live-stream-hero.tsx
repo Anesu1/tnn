@@ -34,9 +34,9 @@ export function LiveStreamHero() {
     fetchLiveStream()
   }, [])
 
-  // if (!liveStream) {
-  //   return null // Render nothing if no live stream is active
-  // }
+  if (!liveStream) {
+    return null // Render nothing if no live stream is active
+  }
 
   return (
     <section className="container mx-auto px-4 py-8 md:py-12">
@@ -48,11 +48,11 @@ export function LiveStreamHero() {
           </Badge>
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Users className="h-4 w-4" />
-            <span>{liveStream.viewers} watching</span>
+            <span>{liveStream?.viewers} watching</span>
           </div>
         </div>
         <h1 className="text-3xl md:text-5xl font-bold text-balance leading-tight">
-          {liveStream.title}
+          {liveStream?.title}
         </h1>
       </div>
 
@@ -60,7 +60,7 @@ export function LiveStreamHero() {
         <iframe
           width="100%"
           height="100%"
-          src={`https://www.youtube.com/embed/${liveStream.videoId}?autoplay=0&rel=0`}
+          src={`https://www.youtube.com/embed/${liveStream?.videoId}?autoplay=0&rel=0`}
           title="Live Stream"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
@@ -70,14 +70,12 @@ export function LiveStreamHero() {
 
       <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <p className="text-muted-foreground text-sm mb-1">Started {liveStream.startedAt}</p>
+          <p className="text-muted-foreground text-sm mb-1">Started {liveStream?.startedAt}</p>
           <p className="text-sm leading-relaxed max-w-3xl">
-            {liveStream.description}
+            {liveStream?.description}
           </p>
         </div>
-        <Button size="lg" className="shrink-0">
-          Enable Notifications
-        </Button>
+      
       </div>
     </section>
   )

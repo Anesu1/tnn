@@ -18,7 +18,7 @@ export default function HomePage() {
 
         <div className="text-center my-8">
           <Link href="/news">
-            <button className="px-6 py-3 bg-black-600 text-white rounded-lg hover:bg-black-700 transition">
+            <button className="px-6 py-3 cursor-pointer bg-black text-white rounded-lg hover:bg-black-700 transition">
               View All Articles
             </button>
           </Link>
