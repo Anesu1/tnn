@@ -1,3 +1,4 @@
+"use client"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Card } from "@/components/ui/card"
@@ -5,6 +6,22 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock } from "lucide-react"
 import Image from "next/image"
+import { createClient } from "@sanity/client";
+import imageUrlBuilder from "@sanity/image-url";
+import { useEffect, useState } from "react";
+
+const client = createClient({
+  projectId: "m0ua7htu",
+  dataset: "production",
+  apiVersion: "2023-10-01",
+  useCdn: true,
+});
+
+const builder = imageUrlBuilder(client);
+
+function urlFor(source) {
+  return builder.image(source);
+}
 
 const newsArticles = [
   {
@@ -97,8 +114,36 @@ const newsArticles = [
 ]
 
 export default function NewsPage() {
-  const featuredArticle = newsArticles.find((article) => article.featured)
-  const regularArticles = newsArticles.filter((article) => !article.featured)
+  const [newsArticles, setNewsArticles] = useState([]);
+  const [visibleArticles, setVisibleArticles] = useState(6);
+
+  useEffect(() => {
+    async function fetchNews() {
+      const query = `*[_type == "newsItem"] | order(publishedAt desc) {
+        _id,
+        title,
+        excerpt,
+        "category": categories[0]->title,
+        "author": author->name,
+        publishedAt,
+        readTime,
+        "image": mainImage.asset->url,
+        trending
+      }`;
+
+      const articles = await client.fetch(query);
+      setNewsArticles(articles);
+    }
+
+    fetchNews();
+  }, []);
+
+  const featuredArticle = newsArticles.find((article) => article.trending);
+  const regularArticles = newsArticles
+
+  const loadMoreArticles = () => {
+    setVisibleArticles((prev) => prev + 6);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -112,7 +157,7 @@ export default function NewsPage() {
               <div className="grid md:grid-cols-2 gap-0">
                 <div className="relative aspect-video md:aspect-auto overflow-hidden">
                   <Image
-                    src={featuredArticle.image || "/placeholder.svg"}
+                    src={urlFor(featuredArticle.image).url() || "/placeholder.svg"}
                     alt={featuredArticle.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -129,7 +174,7 @@ export default function NewsPage() {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      {featuredArticle.date}
+                      {new Date(featuredArticle.publishedAt).toLocaleDateString()}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-4 w-4" />
@@ -142,14 +187,14 @@ export default function NewsPage() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {regularArticles.map((article) => (
+            {regularArticles.slice(0, visibleArticles).map((article) => (
               <Card
-                key={article.id}
+                key={article._id}
                 className="group overflow-hidden cursor-pointer hover:shadow-lg transition-shadow flex flex-col"
               >
                 <div className="relative aspect-video overflow-hidden">
                   <Image
-                    src={article.image || "/placeholder.svg"}
+                    src={urlFor(article.image).url() || "/placeholder.svg"}
                     alt={article.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -168,7 +213,7 @@ export default function NewsPage() {
                   <div className="flex items-center gap-4 text-xs text-muted-foreground pt-4 border-t">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {article.date}
+                      {new Date(article.publishedAt).toLocaleDateString()}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
@@ -181,11 +226,19 @@ export default function NewsPage() {
           </div>
 
           <div className="mt-10 text-center">
-            <Button size="lg">Load More News</Button>
+            {visibleArticles < regularArticles.length ? (
+              <Button size="lg" onClick={loadMoreArticles}>
+                Load More News
+              </Button>
+            ) : (
+              <Button size="lg" disabled>
+                All News Loaded
+              </Button>
+            )}
           </div>
         </section>
       </main>
       <Footer />
     </div>
-  )
+  );
 }
