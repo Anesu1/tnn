@@ -1,9 +1,10 @@
-import { Header } from "@/components/Header"
-import { Footer } from "@/components/Footer"
+
 import Link from "next/link"
 import { client } from "@/sanity/lib/client"
 import Image from "next/image"
 import { urlFor } from "@/sanity/lib/image"
+import { Header } from "@/components/Header"
+import { Footer } from "@/components/Footer"
 
 export const revalidate = 300
 

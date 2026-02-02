@@ -1,10 +1,11 @@
-import { Header } from "@/components/Header"
-import { Footer } from "@/components/Footer"
+
 import { client } from "@/sanity/lib/client"
 import { ArticleCard } from "@/components/ArticleCard"
 import { urlFor } from "@/sanity/lib/image"
 import { Suspense } from "react"
 import SearchResults from "@/components/search-results"
+import { Header } from "@/components/Header"
+import { Footer } from "@/components/Footer"
 
 export default function SearchPage() {
     return (

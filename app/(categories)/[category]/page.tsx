@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
-import { Header } from "@/components/Header"
-import { Footer } from "@/components/Footer"
+
 import { HeroSection } from "@/components/HeroSection"
 import { ArticleCard } from "@/components/ArticleCard"
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
@@ -12,6 +11,8 @@ import Link from "next/link"
 import { MostRead } from "@/components/home/most-read"
 import { LatestTicker } from "@/components/home/latest-ticker"
 import { CategoryStrip } from "@/components/category-strip"
+import { Header } from "@/components/Header"
+import { Footer } from "@/components/Footer"
 
 export const revalidate = 60
 
