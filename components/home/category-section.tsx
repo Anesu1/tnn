@@ -35,7 +35,8 @@ export function CategorySection({ title, href, items }: CategorySectionProps) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {items.slice(0, 3).map((item) => (
-          <Link key={item._id} href={item.slug ? `/news/${item.slug}` : "/news"}>
+          <Link key={item._id} href={item.slug ? `/article/${item.slug}` : "/news"}>
+
             <ArticleCard
               category={item.category ?? title}
               title={item.title}
@@ -45,9 +46,9 @@ export function CategorySection({ title, href, items }: CategorySectionProps) {
               date={
                 item.publishedAt
                   ? new Date(item.publishedAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })
+                    month: "short",
+                    day: "numeric",
+                  })
                   : undefined
               }
             />

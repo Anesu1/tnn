@@ -45,7 +45,8 @@ export function NewsGrid({ business, tech, editorsPicks, trending }: NewsGridPro
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {business.slice(0, 2).map((item) => (
-                                <Link key={item._id} href={item.slug ? `/news/${item.slug}` : "/news"}>
+                                <Link key={item._id} href={item.slug ? `/article/${item.slug}` : "/news"}>
+
                                     <ArticleCard
                                         category={item.category ?? "Business"}
                                         title={item.title}
@@ -66,7 +67,8 @@ export function NewsGrid({ business, tech, editorsPicks, trending }: NewsGridPro
                         </div>
                         <div className="grid grid-cols-1 gap-6 mt-8">
                             {business.slice(2, 4).map((item) => (
-                                <Link key={item._id} href={item.slug ? `/news/${item.slug}` : "/news"}>
+                                <Link key={item._id} href={item.slug ? `/article/${item.slug}` : "/news"}>
+
                                     <ArticleCard
                                         variant="horizontal"
                                         category={item.category ?? "Business"}
@@ -98,7 +100,8 @@ export function NewsGrid({ business, tech, editorsPicks, trending }: NewsGridPro
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {tech.slice(0, 4).map((item, index) => (
-                                <Link key={item._id} href={item.slug ? `/news/${item.slug}` : "/news"}>
+                                <Link key={item._id} href={item.slug ? `/article/${item.slug}` : "/news"}>
+
                                     <ArticleCard
                                         category={item.category ?? "Tech"}
                                         title={item.title}
@@ -120,7 +123,8 @@ export function NewsGrid({ business, tech, editorsPicks, trending }: NewsGridPro
                         <h3 className="font-sans font-bold text-sm tracking-widest uppercase mb-4 border-b border-border pb-2">Editor's Picks</h3>
                         <div className="space-y-6">
                             {editorsPicks.map((item) => (
-                                <Link key={item._id} href={item.slug ? `/news/${item.slug}` : "/news"}>
+                                <Link key={item._id} href={item.slug ? `/article/${item.slug}` : "/news"}>
+
                                     <ArticleCard
                                         variant="compact"
                                         category={item.category ?? "News"}

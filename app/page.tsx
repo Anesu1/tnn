@@ -195,27 +195,27 @@ export default async function Home() {
         mainStory={
           hero
             ? {
-                title: hero.title,
-                excerpt: hero.excerpt,
-                category: hero.category ?? "Breaking News",
-                image: hero.mainImage ? urlFor(hero.mainImage).width(1600).height(900).url() : undefined,
-                author: hero.author,
-                readTime: hero.readTime,
-                date: hero.publishedAt
-                  ? new Date(hero.publishedAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })
-                  : undefined,
-                href: hero.slug ? `/news/${hero.slug}` : "/news",
-              }
+              title: hero.title,
+              excerpt: hero.excerpt,
+              category: hero.category ?? "Breaking News",
+              image: hero.mainImage ? urlFor(hero.mainImage).width(1600).height(900).url() : undefined,
+              author: hero.author,
+              readTime: hero.readTime,
+              date: hero.publishedAt
+                ? new Date(hero.publishedAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })
+                : undefined,
+              href: hero.slug ? `/article/${hero.slug}` : "/news",
+            }
             : undefined
         }
         sideStories={sideStories.map((item) => ({
           title: item.title,
           excerpt: item.excerpt,
           category: item.category ?? "Top Stories",
-          href: item.slug ? `/news/${item.slug}` : "/news",
+          href: item.slug ? `/article/${item.slug}` : "/news",
         }))}
       />
       <NewsGrid
@@ -224,11 +224,12 @@ export default async function Home() {
         editorsPicks={editorsPicks.length ? editorsPicks : latest}
         trending={trending}
       />
-      <CategorySection title="World" href="/world" items={world} />
-      <CategorySection title="Politics" href="/politics" items={politics} />
-      <CategorySection title="Science" href="/science" items={science} />
-      <CategorySection title="Health" href="/health" items={health} />
-      <CategorySection title="Sports" href="/sports" items={sports} />
+      <CategorySection title="World" href="/category/world" items={world} />
+      <CategorySection title="Politics" href="/category/politics" items={politics} />
+      <CategorySection title="Science" href="/category/science" items={science} />
+      <CategorySection title="Health" href="/category/health" items={health} />
+      <CategorySection title="Sports" href="/category/sports" items={sports} />
+
       <MostRead items={trending} />
       <Footer />
     </main>
