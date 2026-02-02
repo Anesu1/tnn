@@ -185,7 +185,7 @@ export default async function Home() {
   const { latest, business, tech, editorsPicks, trending, world, politics, science, health, sports, latestHeadlines } =
     await getHomeData()
   const [hero, ...sideStories] = latest
-
+console.log(hero)
   return (
     <main className="min-h-screen bg-background">
       <Header />
