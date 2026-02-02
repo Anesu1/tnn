@@ -21,16 +21,25 @@ interface SearchResult {
 
 export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
   const [searchQuery, setSearchQuery] = useState("")
+  const [isSearching, setIsSearching] = useState(false)
   const [results, setResults] = useState<SearchResult[]>([])
 
   useEffect(() => {
-    const fetchResults = async () => {
+    let isActive = true
+    const debounce = setTimeout(async () => {
       if (searchQuery.trim() === "") {
         setResults([])
+        setIsSearching(false)
         return
       }
 
-      const query = `*[_type == "newsItem" && title match $searchQuery] {
+      setIsSearching(true)
+
+      const query = `*[_type == "newsItem" && (
+        title match $searchQuery ||
+        excerpt match $searchQuery ||
+        content[].children[].text match $searchQuery
+      )] | order(publishedAt desc)[0...10] {
         _id,
         title,
         "category": categories[0]->title,
@@ -38,10 +47,16 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
       }`
 
       const data = await client.fetch(query, { searchQuery: `${searchQuery}*` })
-      setResults(data)
-    }
+      if (isActive) {
+        setResults(data)
+        setIsSearching(false)
+      }
+    }, 250)
 
-    fetchResults()
+    return () => {
+      isActive = false
+      clearTimeout(debounce)
+    }
   }, [searchQuery])
 
   return (
@@ -85,7 +100,9 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <Search className="h-12 w-12 mx-auto mb-2 opacity-20" />
-              <p className="text-sm">No results found</p>
+              <p className="text-sm">
+                {isSearching ? "Searching..." : "No results found"}
+              </p>
             </div>
           )}
         </div>

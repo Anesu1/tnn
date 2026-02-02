@@ -5,8 +5,9 @@ import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
 import { HeroSection } from "@/components/ui/hero-section"
 import { ShareSection } from "@/components/news/share-section"
-import { Footer } from "@/components/footer"
-import { Header } from "@/components/header"
+import { Header } from "@/components/Header"
+import { Footer } from "@/components/Footer"
+
 
 // Fetch news item from Sanity
 async function getNewsItem(slug: string) {

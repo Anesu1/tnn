@@ -3,12 +3,13 @@ import { defineField, defineType } from 'sanity'
 
 // Updated the schema to include fixed categories and ensure compliance with requirements
 const fixedCategories = [
-  'Breaking News',
-  'Politics & Governance',
-  'Business & Economy',
-  'Social & Community Affairs',
-  'Creative & Cultural Industries',
-  'Sports & Entertainment',
+  'World',
+  'Politics',
+  'Business',
+  'Tech',
+  'Science',
+  'Health',
+  'Sports',
 ]
 
 export const categoryType = defineType({

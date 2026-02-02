@@ -1,15 +1,16 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Geist, Geist_Mono, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" })
+const geistSans = Geist({ subsets: ["latin"], variable: "--font-sans" })
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
 
 export const metadata: Metadata = {
-  title: "NewsStream - Live News & Streaming",
-  description: "Your source for live news streaming and breaking stories",
+  title: "NewsStream - Global News & Live Coverage",
+  description: "Breaking news, in-depth analysis and live streaming from around the globe.",
   generator: "v0.app",
   icons: {
     icon: [
@@ -37,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} font-sans antialiased`}>
         {children}
         <Analytics />
       </body>

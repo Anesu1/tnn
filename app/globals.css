@@ -4,32 +4,39 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.98 0 0);
-  --foreground: oklch(0.15 0 0);
+  /* Ultra-clean "News Paper" Foundation */
+  --background: oklch(1 0 0); /* Pure White */
+  --foreground: oklch(0.1 0 0); /* Near Black */
+  
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0 0);
+  --card-foreground: oklch(0.1 0 0);
+  
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.2 0 0);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.45 0 0);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.9 0 0);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.75 0.05 85);
-  --accent-foreground: oklch(0.15 0 0);
+  --popover-foreground: oklch(0.1 0 0);
+  
+  --primary: oklch(0.1 0 0); /* Deep Black for authority */
+  --primary-foreground: oklch(1 0 0);
+  
+  --secondary: oklch(0.96 0 0); /* Light Gray for backgrounds */
+  --secondary-foreground: oklch(0.1 0 0);
+  
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.4 0 0);
+  
+  /* BBC/Forbes Red Accent */
+  --accent: oklch(0.45 0.25 25); /* Professional News Red */
+  --accent-foreground: oklch(1 0 0);
+  
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.88 0 0);
-  --input: oklch(0.88 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.25rem;
-  --sidebar: oklch(0.985 0 0);
+  
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: oklch(0.1 0 0);
+  
+  --radius: 0rem; /* Boxy, sharp edges for traditional news feel */
+  
+  --sidebar: oklch(0.98 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -40,31 +47,36 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.18 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.18 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.2 0 0);
-  --secondary: oklch(0.6 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.75 0.05 85);
-  --accent-foreground: oklch(0.15 0 0);
+  /* Dark Mode: "Late Night News" */
+  --background: oklch(0.1 0 0);
+  --foreground: oklch(0.98 0 0);
+  
+  --card: oklch(0.14 0 0);
+  --card-foreground: oklch(0.98 0 0);
+  
+  --popover: oklch(0.14 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+  
+  --primary: oklch(0.98 0 0);
+  --primary-foreground: oklch(0.1 0 0);
+  
+  --secondary: oklch(0.2 0 0);
+  --secondary-foreground: oklch(0.98 0 0);
+  
+  --muted: oklch(0.2 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  
+  --accent: oklch(0.45 0.25 25);
+  --accent-foreground: oklch(1 0 0);
+  
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
+  
+  --border: oklch(0.2 0 0);
+  --input: oklch(0.2 0 0);
+  --ring: oklch(0.8 0 0);
+  
+  --sidebar: oklch(0.12 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -75,8 +87,10 @@
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: var(--font-sans), "Geist", "Arial", sans-serif;
+  --font-serif: var(--font-serif), "Times New Roman", serif;
+  --font-mono: var(--font-mono), "Courier New", monospace;
+  
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -96,15 +110,12 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
+  
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 4px);
+  
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -122,4 +133,21 @@
   body {
     @apply bg-background text-foreground;
   }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight text-primary;
+  }
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  animation: ticker-scroll 30s linear infinite;
+  width: max-content;
 }

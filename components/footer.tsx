@@ -32,6 +32,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/newsletter" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Newsletter
+                </Link>
+              </li>
+              <li>
                 <Link href="/careers" className="text-muted-foreground hover:text-foreground transition-colors">
                   Careers
                 </Link>
@@ -39,6 +44,21 @@ export function Footer() {
               <li>
                 <Link href="/advertise" className="text-muted-foreground hover:text-foreground transition-colors">
                   Advertise
+                </Link>
+              </li>
+              <li>
+                <Link href="/topics" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Topics
+                </Link>
+              </li>
+              <li>
+                <Link href="/authors" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Authors
+                </Link>
+              </li>
+              <li>
+                <Link href="/rss" className="text-muted-foreground hover:text-foreground transition-colors">
+                  RSS
                 </Link>
               </li>
             </ul>
