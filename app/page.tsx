@@ -8,7 +8,7 @@ import { CategorySection } from "@/components/home/category-section"
 import { MostRead } from "@/components/home/most-read"
 import { LatestTicker } from "@/components/home/latest-ticker"
 import { CategoryStrip } from "@/components/category-strip"
-import { Header } from "@/components/Header"
+// import { Header } from "@/components/Header"
 
 export const revalidate = 60
 
@@ -189,7 +189,7 @@ export default async function Home() {
 console.log(hero)
   return (
     <main className="min-h-screen bg-background">
-      <Header />
+      {/* <Header /> */}
       <LatestTicker items={latestHeadlines} />
       <CategoryStrip />
       <HeroSection

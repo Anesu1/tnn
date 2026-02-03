@@ -3,8 +3,8 @@ import Link from "next/link"
 import { PortableText, PortableTextComponents } from "@portabletext/react"
 import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
-import { Header } from "@/components/Header"
-import { Footer } from "@/components/Footer"
+// import { Header } from "@/components/Header"
+// import { Footer } from "@/components/Footer"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, User, Share2 } from "lucide-react"
 
@@ -67,7 +67,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
     return (
         <div className="min-h-screen flex flex-col bg-background">
-            <Header />
+            {/* <Header /> */}
             <main className="flex-1">
                 <article className="container mx-auto px-4 py-12 max-w-4xl">
                     {/* Article Header */}
@@ -129,7 +129,7 @@ export default async function ArticlePage({ params }: PageProps) {
                     </footer>
                 </article>
             </main>
-            <Footer />
+            {/* <Footer /> */}
         </div>
     )
 }
