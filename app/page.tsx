@@ -1,7 +1,7 @@
 
 import { HeroSection } from "@/components/HeroSection"
 import { NewsGrid } from "@/components/NewsGrid"
-import { Footer } from "@/components/Footer"
+// import { Footer } from "@/components/Footer"
 import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
 import { CategorySection } from "@/components/home/category-section"
@@ -232,7 +232,7 @@ console.log(hero)
       <CategorySection title="Sports" href="/category/sports" items={sports} />
 
       <MostRead items={trending} />
-      <Footer />
+      {/* <Footer /> */}
     </main>
   )
 }
