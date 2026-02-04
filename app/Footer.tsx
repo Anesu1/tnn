@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Facebook, Twitter, Youtube, Instagram } from "lucide-react"
 
-export function Footer() {
+export default function Footer() {
   const categories = [
     { name: "World", slug: "world" },
     { name: "Politics", slug: "politics" },
