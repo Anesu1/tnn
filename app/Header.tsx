@@ -16,13 +16,12 @@ export default function Header() {
   })
 
   const categories = [
-    { name: "WORLD", slug: "world" },
-    { name: "POLITICS", slug: "politics" },
-    { name: "BUSINESS", slug: "business" },
-    { name: "TECH", slug: "tech" },
-    { name: "SCIENCE", slug: "science" },
-    { name: "HEALTH", slug: "health" },
-    { name: "SPORTS", slug: "sports" },
+    { name: "BREAKING NEWS", slug: "breaking-news" },
+    { name: "POLITICS & GOVERNANCE", slug: "politics-governance" },
+    { name: "BUSINESS & ECONOMY", slug: "business-economy" },
+    { name: "SOCIAL & COMMUNITY", slug: "social-community-affairs" },
+    { name: "CREATIVE & CULTURAL", slug: "creative-cultural-industries" },
+    { name: "SPORTS & ENTERTAINMENT", slug: "sports-entertainment" },
   ]
 
   return (
@@ -53,7 +52,7 @@ export default function Header() {
             <Search className="h-5 w-5" />
           </Button>
           <div className="hidden md:flex items-center space-x-4 text-[10px] font-sans font-black tracking-widest">
-            <Link href="/login" className="hover:text-primary transition-colors border border-border px-3 py-1.5">SIGN IN</Link>
+       
             <Link href="/subscribe" className="bg-accent text-white px-3 py-1.5 hover:bg-accent/90 transition-colors">SUBSCRIBE</Link>
           </div>
           <Button variant="ghost" size="icon" className="md:hidden">

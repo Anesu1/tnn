@@ -3,10 +3,12 @@ import Link from "next/link"
 import { PortableText, PortableTextComponents } from "@portabletext/react"
 import { client } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
-// import { Header } from "@/components/Header"
-// import { Footer } from "@/components/Footer"
+
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, User, Share2 } from "lucide-react"
+import { ShareDialog } from "@/components/share-dialog"
+import Header from "../../Header"
+import Footer from "../../Footer"
 
 async function getArticle(slug: string) {
     const query = `*[_type == "newsItem" && slug.current == $slug][0]{
@@ -67,7 +69,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
     return (
         <div className="min-h-screen flex flex-col bg-background">
-            {/* <Header /> */}
+            <Header />
             <main className="flex-1">
                 <article className="container mx-auto px-4 py-12 max-w-4xl">
                     {/* Article Header */}
@@ -95,10 +97,7 @@ export default async function ArticlePage({ params }: PageProps) {
                                 <Clock className="h-4 w-4 text-accent" />
                                 <span>{article.readTime}</span>
                             </div>
-                            <button className="flex items-center gap-2 hover:text-accent transition-colors ml-auto hidden md:flex">
-                                <Share2 className="h-4 w-4" />
-                                <span>Share Story</span>
-                            </button>
+                            <ShareDialog className="flex items-center gap-2 hover:text-accent transition-colors ml-auto hidden md:flex px-0 py-0 border-0" />
                         </div>
                     </header>
 
@@ -121,15 +120,15 @@ export default async function ArticlePage({ params }: PageProps) {
                     {/* Article Footer */}
                     <footer className="mt-16 pt-8 border-t border-border flex justify-between items-center">
                         <div className="flex gap-4">
-                            <button className="p-2 border border-border hover:bg-accent hover:text-white transition-all"><Share2 className="h-4 w-4" /></button>
+                            <ShareDialog />
                         </div>
                         <Link href="/" className="text-xs font-black uppercase tracking-widest hover:text-accent transition-colors">
-                            Back to News Stream
+                            Back to Home
                         </Link>
                     </footer>
                 </article>
             </main>
-            {/* <Footer /> */}
+            <Footer />
         </div>
     )
 }

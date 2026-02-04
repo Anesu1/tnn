@@ -86,12 +86,12 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                   key={result._id}
                   href={`/news/${result.slug}`}
                   onClick={() => onOpenChange(false)}
-                  className="block rounded-lg border p-3 hover:bg-accent transition-colors"
+                  className="block rounded-lg border p-3 hover:bg-accent group transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-1">
-                      <h3 className="font-medium text-sm leading-relaxed">{result.title}</h3>
-                      <p className="text-xs text-muted-foreground mt-1">{result.category}</p>
+                      <h3 className="font-medium text-sm leading-relaxed group-hover:text-white">{result.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-1 group-hover:text-white">{result.category}</p>
                     </div>
                   </div>
                 </Link>

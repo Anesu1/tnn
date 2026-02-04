@@ -3,13 +3,12 @@ import { defineField, defineType } from 'sanity'
 
 // Updated the schema to include fixed categories and ensure compliance with requirements
 const fixedCategories = [
-  'World',
-  'Politics',
-  'Business',
-  'Tech',
-  'Science',
-  'Health',
-  'Sports',
+  'Breaking News',
+  'Politics & Governance',
+  'Business & Economy',
+  'Social & Community Affairs',
+  'Creative & Cultural Industries',
+  'Sports & Entertainment',
 ]
 
 export const categoryType = defineType({
@@ -37,7 +36,7 @@ export const categoryType = defineType({
       name: 'key',
       title: 'Internal Key',
       type: 'string',
-      description: 'Used in code (e.g. breaking, politics, business)',
+      description: 'Used in code (e.g. breaking-news, politics-governance, business-economy)',
       validation: Rule => Rule.required().regex(/^[a-z0-9-]+$/, {
         name: 'slug',
         invert: false,
