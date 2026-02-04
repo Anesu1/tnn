@@ -6,7 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { SearchDialog } from "@/components/search-dialog"
 
-export function Header() {
+export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false)
   const currentDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
