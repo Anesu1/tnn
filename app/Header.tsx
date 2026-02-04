@@ -30,10 +30,11 @@ export default function Header() {
       {/* Top Level: Brand & Actions */}
       <div className="container mx-auto px-4 h-16 flex items-center justify-between border-b border-border/40">
         <div className="flex items-center space-x-6">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex flex-col items-left space-x-2">
             <h1 className="text-2xl md:text-3xl font-serif font-black tracking-tighter leading-none">
-              NEWS<span className="text-accent">STREAM</span>
+              The Narrative Network
             </h1>
+            <p>Redefining Africa's Narrative</p>
           </Link>
           <div className="hidden lg:block border-l border-border h-6 mx-4"></div>
           <span className="hidden lg:block text-[10px] font-sans text-muted-foreground uppercase tracking-widest font-bold">

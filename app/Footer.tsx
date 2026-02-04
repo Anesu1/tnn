@@ -18,9 +18,10 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div className="space-y-6">
             <Link href="/" className="inline-block">
-              <h2 className="text-3xl font-serif font-black tracking-tighter leading-none text-foreground uppercase">
-                NEWS<span className="text-accent">STREAM</span>
+              <h2 className="text-3xl font-serif  font-black tracking-tighter leading-none text-foreground ">
+                The Narrative Network
               </h2>
+              <p>Redefining Africa's Narrative</p>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               Delivering accurate, timely, and independent news coverage from around the globe. Redefining how you experience the world's most important stories.
