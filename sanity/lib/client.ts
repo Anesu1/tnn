@@ -7,4 +7,6 @@ export const client = createClient({
   dataset,
   apiVersion,
   useCdn: true, // Set to false if statically generating pages, using ISR or tag-based revalidation
+  // Only ever serve published documents, so unapproved drafts never reach the public site
+  perspective: 'published',
 })
