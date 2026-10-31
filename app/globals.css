@@ -151,3 +151,8 @@
   animation: ticker-scroll 30s linear infinite;
   width: max-content;
 }
+
+/* Hide the "Powered by Netlify" badge Netlify injects on its free plan */
+#nl-badge-frame {
+  display: none !important;
+}
