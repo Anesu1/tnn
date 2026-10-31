@@ -6,6 +6,7 @@ import { blockContentType } from "./blockContentType";
 import authorType from "./authorType";
 import tagType from "./tagType";
 import liveStreamType from "./liveStreamType";
+import writerType from "./writerType";
 
 
 
@@ -16,7 +17,8 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     authorType,
     newsItemType,
     tagType,
-    liveStreamType
- 
+    liveStreamType,
+    writerType,
+
   ],
 };

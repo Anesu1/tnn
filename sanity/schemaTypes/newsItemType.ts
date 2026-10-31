@@ -101,17 +101,27 @@ export default {
             description: "Mark this article as trending",
             initialValue: false,
         },
+        {
+            name: "submittedBy",
+            title: "Submitted by",
+            type: "reference",
+            to: { type: "writer" },
+            description: "Set automatically when a writer submits this story from the /write portal",
+            readOnly: true,
+        },
     ],
 
     preview: {
         select: {
             title: "title",
             author: "author.name",
+            writer: "submittedBy.name",
             media: "mainImage",
         },
         prepare(selection: Record<string, any>) {
-            const { author } = selection
-            return { ...selection, subtitle: author ? `by ${author}` : undefined }
+            const { author, writer, ...rest } = selection
+            const parts = [author && `by ${author}`, writer && `submitted by ${writer}`].filter(Boolean)
+            return { ...rest, subtitle: parts.length ? parts.join(" · ") : undefined }
         },
     },
 }

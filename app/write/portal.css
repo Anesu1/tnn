@@ -1,0 +1,88 @@
+/* Writer portal styles, based on the TNN reference design. Scoped to .tnn-portal. */
+.tnn-portal {
+  --red: #b51f2a;
+  --ink: #171c19;
+  --muted: #535d56;
+  --paper: #f8f7f2;
+  --line: #d7ddd5;
+  --green: #18382e;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.65 Arial, sans-serif;
+}
+.tnn-portal :focus-visible { outline: 3px solid #c97915; outline-offset: 4px; }
+.tnn-portal a { color: inherit; }
+.tnn-portal .meta a { color: var(--ink); font-weight: bold; }
+.tnn-portal .wrap { width: min(1080px, calc(100% - 64px)); margin: auto; }
+.tnn-portal h1, .tnn-portal h2, .tnn-portal h3 { font-family: Georgia, serif; line-height: 1.15; margin: 0; }
+.tnn-portal h1 { font-size: 40px; letter-spacing: -0.8px; }
+.tnn-portal h2 { font-size: 26px; }
+.tnn-portal h3 { font-size: 21px; }
+
+.tnn-portal .utility { background: var(--ink); color: white; font-size: 11px; letter-spacing: 1.4px; padding: 8px 0; }
+.tnn-portal .utility .wrap { display: flex; justify-content: space-between; gap: 16px; }
+.tnn-portal .mast { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 0; border-bottom: 2px solid var(--ink); }
+.tnn-portal .logo { display: block; width: 132px; height: auto; }
+.tnn-portal .mast-user { display: flex; align-items: center; gap: 16px; font-size: 13px; }
+.tnn-portal main { padding: 36px 0 72px; }
+
+.tnn-portal .label { font-size: 11px; letter-spacing: 1.3px; text-transform: uppercase; font-weight: bold; color: var(--red); }
+.tnn-portal .meta { font-size: 12px; color: var(--muted); }
+.tnn-portal .intro { font: 19px/1.6 Georgia, serif; color: var(--muted); max-width: 680px; margin: 12px 0 0; }
+
+.tnn-portal .button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--red); color: white; border: 0; padding: 12px 18px; min-height: 44px;
+  text-decoration: none; font-size: 14px; font-weight: bold; cursor: pointer;
+}
+.tnn-portal .button:disabled { opacity: 0.6; cursor: progress; }
+.tnn-portal .button.outline { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+.tnn-portal .link-button { background: none; border: 0; padding: 0; font: inherit; text-decoration: underline; cursor: pointer; color: inherit; }
+.tnn-portal .link-button.danger { color: var(--red); }
+
+.tnn-portal .page-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 8px; }
+.tnn-portal .section-head { border-bottom: 2px solid var(--ink); margin: 40px 0 0; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: baseline; }
+
+.tnn-portal .notice { background: #eeefe8; border-left: 3px solid var(--red); padding: 14px 18px; margin: 20px 0; font-size: 14px; }
+.tnn-portal .notice.success { border-left-color: var(--green); }
+.tnn-portal .error { color: var(--red); font-size: 14px; font-weight: bold; margin: 16px 0 0; }
+
+.tnn-portal .story { display: grid; grid-template-columns: 96px 1fr auto; gap: 18px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.tnn-portal .story .thumb { aspect-ratio: 1.6; background: #dfe6de; overflow: hidden; }
+.tnn-portal .story .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tnn-portal .story h3 { margin: 4px 0 6px; }
+.tnn-portal .story-actions { display: flex; gap: 16px; font-size: 13px; align-items: center; }
+.tnn-portal .status { font-size: 11px; padding: 3px 6px; border: 1px solid var(--line); margin-left: 8px; text-transform: uppercase; letter-spacing: 1px; }
+.tnn-portal .status.pending { border-color: #c97915; color: #8a5208; }
+.tnn-portal .status.live { border-color: var(--green); color: var(--green); }
+.tnn-portal .empty { padding: 30px; border: 1px solid var(--line); margin-top: 20px; }
+
+.tnn-portal .panel { max-width: 460px; margin: 24px auto 0; border: 1px solid var(--line); background: white; padding: 32px; }
+.tnn-portal .form { max-width: 760px; }
+.tnn-portal .form label { display: block; font-size: 14px; font-weight: bold; margin-top: 20px; }
+.tnn-portal .form .hint { display: block; font-weight: normal; font-size: 13px; color: var(--muted); margin-top: 2px; }
+.tnn-portal .form input:not([type=checkbox]),
+.tnn-portal .form textarea {
+  width: 100%; padding: 12px; border: 1px solid #7a867c; border-radius: 0; background: white;
+  min-height: 48px; margin-top: 6px; font: inherit; color: inherit;
+}
+.tnn-portal .form textarea { min-height: 110px; resize: vertical; }
+.tnn-portal .form textarea.story-body { min-height: 380px; font: 17px/1.75 Georgia, serif; }
+.tnn-portal .form .headline { font: 24px/1.3 Georgia, serif !important; }
+.tnn-portal .form .code { font-family: ui-monospace, monospace; letter-spacing: 2px; text-transform: uppercase; }
+.tnn-portal .checks { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 8px; }
+.tnn-portal .checks label { display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0; }
+.tnn-portal .checks input { width: 18px; height: 18px; }
+.tnn-portal .current-photo { width: 220px; aspect-ratio: 1.6; object-fit: cover; margin-top: 8px; display: block; }
+.tnn-portal .form-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
+
+@media (max-width: 600px) {
+  .tnn-portal .wrap { width: calc(100% - 32px); }
+  .tnn-portal .utility .wrap span:last-child { display: none; }
+  .tnn-portal h1 { font-size: 32px; }
+  .tnn-portal .logo { width: 108px; }
+  .tnn-portal .panel { padding: 22px; }
+  .tnn-portal .story { grid-template-columns: 72px 1fr; }
+  .tnn-portal .story-actions { grid-column: 1 / -1; }
+}
