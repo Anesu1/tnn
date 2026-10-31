@@ -11,13 +11,31 @@ export type FormState = { error?: string }
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024
 const MIN_PASSWORD_LENGTH = 8
 
+// Turn server setup problems into a message on the form instead of a crashed page
+function setupError(err: unknown): FormState {
+  console.error('Writer portal error', err)
+  const message = err instanceof Error ? err.message : String(err)
+  const status = (err as { statusCode?: number })?.statusCode
+  if (message.includes('SANITY_API_WRITE_TOKEN')) {
+    return { error: 'The writer portal isn’t set up yet: the SANITY_API_WRITE_TOKEN setting is missing on the server. Please tell the site admin.' }
+  }
+  if (status === 401 || status === 403) {
+    return { error: 'The writer portal’s Sanity token was rejected or doesn’t have Editor permissions. Please tell the site admin.' }
+  }
+  return { error: 'Something went wrong on our side. Please try again in a moment.' }
+}
+
 export async function signInAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const email = String(formData.get('email') ?? '').trim()
   const password = String(formData.get('password') ?? '')
   if (!email || !password) return { error: 'Enter your email and password.' }
-  if (!(await signIn(email, password))) {
-    return { error: 'That email and password don’t match an active writer account.' }
+  let ok: boolean
+  try {
+    ok = await signIn(email, password)
+  } catch (err) {
+    return setupError(err)
   }
+  if (!ok) return { error: 'That email and password don’t match an active writer account.' }
   redirect('/write')
 }
 
@@ -34,7 +52,12 @@ export async function joinAction(_prev: FormState, formData: FormData): Promise<
   }
   if (password !== confirm) return { error: 'The two passwords don’t match.' }
 
-  const result = await joinWithInvite(code, email, password)
+  let result: Awaited<ReturnType<typeof joinWithInvite>>
+  try {
+    result = await joinWithInvite(code, email, password)
+  } catch (err) {
+    return setupError(err)
+  }
   if (!result.ok) return { error: result.error }
   redirect('/write')
 }
