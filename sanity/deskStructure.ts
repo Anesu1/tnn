@@ -1,5 +1,13 @@
 import type {StructureResolver} from 'sanity/structure'
-import {ClockIcon} from '@sanity/icons'
+import {ClockIcon, WarningOutlineIcon} from '@sanity/icons'
+
+// Published stories missing what newsItemType now requires before publishing
+const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (
+  !defined(author) ||
+  count(coalesce(categories, [])) == 0 ||
+  !defined(excerpt) || excerpt == "" ||
+  (defined(mainImage.asset) && (!defined(mainImage.alt) || mainImage.alt == ""))
+)`
 
 // https://www.sanity.io/docs/structure-builder-cheat-sheet
 export const structure: StructureResolver = (S) =>
@@ -16,6 +24,15 @@ export const structure: StructureResolver = (S) =>
             .title('Awaiting approval')
             .filter('_type == "newsItem" && _id in path("drafts.**")')
             .defaultOrdering([{field: '_updatedAt', direction: 'desc'}]),
+        ),
+      S.listItem()
+        .title('Needs attention')
+        .icon(WarningOutlineIcon)
+        .child(
+          S.documentList()
+            .title('Missing byline, section, summary or photo description')
+            .filter(NEEDS_ATTENTION_FILTER)
+            .defaultOrdering([{field: 'publishedAt', direction: 'desc'}]),
         ),
       S.divider(),
       ...S.documentTypeListItems(),

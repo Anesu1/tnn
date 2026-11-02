@@ -23,7 +23,7 @@ export default {
             name: "publishedAt",
             title: "Published at",
             type: "datetime",
-            validation: (Rule: any) => Rule.required(),
+            description: "Set automatically the first time you publish. Change it here to backdate or correct it.",
         },
         {
             name: "readTime",
@@ -37,6 +37,7 @@ export default {
             title: "Author",
             type: "reference",
             to: { type: "author" },
+            validation: (Rule: any) => Rule.required().error("Add a byline before publishing"),
         },
         {
             name: "mainImage",
@@ -49,22 +50,33 @@ export default {
                 {
                     name: "alt",
                     type: "string",
-                    title: "Alternative text",
-                    description: "Important for SEO and accessibility",
+                    title: "Photo description",
+                    description: "Describe the photo for readers who can't see it. Also helps Google Images.",
+                    validation: (Rule: any) =>
+                        Rule.custom((alt: string | undefined, context: any) =>
+                            context.parent?.asset && !alt?.trim() ? "Describe the photo before publishing" : true,
+                        ),
                 },
             ],
         },
         {
             name: "excerpt",
-            title: "Excerpt",
+            title: "Summary",
             type: "text",
-            description: "A short summary that appears under the title in the hero section",
+            rows: 3,
+            description: "One or two sentences shown under the headline on the homepage and in search results",
+            validation: (Rule: any) => [
+                Rule.required().error("Add a summary before publishing"),
+                Rule.max(200).warning("Summaries over 200 characters get cut off on the homepage"),
+            ],
         },
         {
             name: "categories",
-            title: "Categories",
+            title: "Sections",
             type: "array",
+            description: "The first section is the main one: it is shown on the story and decides where it appears",
             of: [{ type: "reference", to: { type: "category" } }],
+            validation: (Rule: any) => Rule.required().min(1).error("Choose at least one section before publishing"),
         },
         {
             name: "tags",

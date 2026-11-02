@@ -33,13 +33,16 @@ export function StoryForm({ categories, initial = {} }: Props) {
 
       <label htmlFor="excerpt">
         Summary
-        <span className="hint">One or two sentences shown under the headline on the homepage.</span>
+        <span className="hint">One or two sentences shown under the headline on the homepage. Up to 200 characters.</span>
       </label>
-      <textarea id="excerpt" name="excerpt" defaultValue={initial.excerpt} maxLength={400} />
+      <textarea id="excerpt" name="excerpt" defaultValue={initial.excerpt} maxLength={200} required />
 
       {categories.length > 0 && (
         <fieldset style={{ border: 0, padding: 0, margin: "20px 0 0" }}>
-          <legend style={{ fontSize: 14, fontWeight: "bold" }}>Sections</legend>
+          <legend style={{ fontSize: 14, fontWeight: "bold" }}>
+            Sections
+            <span className="hint">Choose at least one. The chief editor confirms the main section when publishing.</span>
+          </legend>
           <div className="checks">
             {categories.map((category) => (
               <label key={category._id}>
@@ -67,7 +70,7 @@ export function StoryForm({ categories, initial = {} }: Props) {
 
       <label htmlFor="imageAlt">
         Photo description
-        <span className="hint">Describe the photo for readers who can&apos;t see it.</span>
+        <span className="hint">Required if you add a photo. Describe it for readers who can&apos;t see it.</span>
       </label>
       <input id="imageAlt" name="imageAlt" defaultValue={initial.imageAlt} maxLength={200} />
 

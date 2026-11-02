@@ -122,13 +122,18 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
   const image = formData.get('image')
   const categoryIds = formData.getAll('categories').map(String)
 
+  // Match what the chief editor needs before publishing (see newsItemType validation)
   if (!title) return { error: 'Add a headline.' }
+  if (!excerpt) return { error: 'Add a short summary of the story.' }
+  if (categoryIds.length === 0) return { error: 'Choose at least one section.' }
   if (!content) return { error: 'Write the story before submitting.' }
 
   const existing = id ? await findOwnDraft(id, writer._id) : null
   if (id && !existing) {
     return { error: 'This story has already been published or withdrawn, so it can’t be edited here.' }
   }
+  const hasPhoto = (image instanceof File && image.size > 0) || Boolean(existing?.mainImage)
+  if (hasPhoto && !imageAlt) return { error: 'Describe the photo for readers who can’t see it.' }
   const baseId = id || crypto.randomUUID()
   const draftId = `drafts.${baseId}`
 
@@ -175,8 +180,8 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
     if (id) {
       await client.patch(draftId).set(fields).commit()
     } else {
-      // The chief editor can change the date when publishing
-      await client.create({ _id: draftId, _type: 'newsItem', publishedAt: new Date().toISOString(), ...fields })
+      // "Published at" is filled in when the chief editor publishes (sanity/actions/setPublishedAt.ts)
+      await client.create({ _id: draftId, _type: 'newsItem', ...fields })
     }
   } catch (err) {
     console.error('Failed to save story', err)

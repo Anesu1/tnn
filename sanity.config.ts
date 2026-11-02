@@ -12,6 +12,7 @@ import { structureTool } from 'sanity/structure'
 import { apiVersion, dataset, projectId } from './sanity/env'
 import { schema } from './sanity/schemaTypes'
 import { structure } from './sanity/deskStructure'
+import { withPublishedAt } from './sanity/actions/setPublishedAt'
 
 export default defineConfig({
   basePath: '/studio',
@@ -25,4 +26,10 @@ export default defineConfig({
     // https://www.sanity.io/docs/the-vision-plugin
     visionTool({ defaultApiVersion: apiVersion }),
   ],
+  document: {
+    actions: (prev, context) =>
+      context.schemaType === 'newsItem'
+        ? prev.map((action) => (action.action === 'publish' ? withPublishedAt(action) : action))
+        : prev,
+  },
 })
