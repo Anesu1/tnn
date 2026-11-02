@@ -24,7 +24,7 @@ export const categoryType = defineType({
       type: 'string',
       validation: Rule =>
         Rule.required().custom(value => {
-          if (!fixedCategories.includes(value)) {
+          if (value && !fixedCategories.includes(value)) {
             return `Title must be one of the fixed categories: ${fixedCategories.join(', ')}`
           }
           return true

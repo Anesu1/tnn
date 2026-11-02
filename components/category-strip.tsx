@@ -32,7 +32,7 @@ export async function CategoryStrip() {
         {categories.map((category) => (
           <Link
             key={category._id}
-            href={category.slug ? `/${category.slug}` : "/"}
+            href={category.slug ? `/category/${category.slug}` : "/"}
             className="text-muted-foreground hover:text-accent transition-colors"
           >
             {category.title} <span className="text-[10px] text-muted-foreground/70">({category.postCount})</span>

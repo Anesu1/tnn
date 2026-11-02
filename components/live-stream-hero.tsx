@@ -2,16 +2,21 @@
 
 import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Radio, Users } from "lucide-react"
+import { Radio } from "lucide-react"
 import { client } from "@/sanity/lib/client"
 
 interface LiveStream {
   title: string
-  description: string
-  videoId: string
-  viewers: number
-  startedAt: string
+  description?: string
+  streamUrl?: string
+  startTime?: string
+}
+
+// Accepts the usual YouTube link shapes (watch?v=, youtu.be/, /live/, /embed/) and returns an embed URL
+function toEmbedUrl(url?: string) {
+  if (!url) return null
+  const match = url.match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/)|youtu\.be\/)([\w-]{11})/)
+  return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=0&rel=0` : url
 }
 
 export function LiveStreamHero() {
@@ -19,12 +24,11 @@ export function LiveStreamHero() {
 
   useEffect(() => {
     const fetchLiveStream = async () => {
-      const query = `*[_type == "liveStream" && isActive == true][0] {
+      const query = `*[_type == "liveStream" && isLive == true] | order(startTime desc)[0] {
         title,
         description,
-        videoId,
-        viewers,
-        startedAt
+        streamUrl,
+        startTime
       }`
 
       const data = await client.fetch(query)
@@ -34,7 +38,8 @@ export function LiveStreamHero() {
     fetchLiveStream()
   }, [])
 
-  if (!liveStream) {
+  const embedUrl = toEmbedUrl(liveStream?.streamUrl)
+  if (!liveStream || !embedUrl) {
     return null // Render nothing if no live stream is active
   }
 
@@ -46,13 +51,9 @@ export function LiveStreamHero() {
             <Radio className="h-3 w-3 fill-current" />
             LIVE
           </Badge>
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Users className="h-4 w-4" />
-            <span>{liveStream?.viewers} watching</span>
-          </div>
         </div>
         <h1 className="text-3xl md:text-5xl font-bold text-balance leading-tight">
-          {liveStream?.title}
+          {liveStream.title}
         </h1>
       </div>
 
@@ -60,8 +61,8 @@ export function LiveStreamHero() {
         <iframe
           width="100%"
           height="100%"
-          src={`https://www.youtube.com/embed/${liveStream?.videoId}?autoplay=0&rel=0`}
-          title="Live Stream"
+          src={embedUrl}
+          title={liveStream.title}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
           className="w-full h-full"
@@ -70,12 +71,16 @@ export function LiveStreamHero() {
 
       <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <p className="text-muted-foreground text-sm mb-1">Started {liveStream?.startedAt}</p>
-          <p className="text-sm leading-relaxed max-w-3xl">
-            {liveStream?.description}
-          </p>
+          {liveStream.startTime && (
+            <p className="text-muted-foreground text-sm mb-1">
+              Started{" "}
+              {new Date(liveStream.startTime).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
+            </p>
+          )}
+          {liveStream.description && (
+            <p className="text-sm leading-relaxed max-w-3xl">{liveStream.description}</p>
+          )}
         </div>
-      
       </div>
     </section>
   )

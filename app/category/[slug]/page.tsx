@@ -25,12 +25,14 @@ interface Article {
 }
 
 async function getCategoryData(slug: string) {
-  const categoryQuery = `*[_type == "category" && slug.current == $slug][0]{
+  // Site navigation links use the category's internal key (e.g. "politics-governance"),
+  // while Sanity slugs read "politics-and-governance", so accept either
+  const categoryQuery = `*[_type == "category" && (slug.current == $slug || key == $slug)][0]{
     title,
     description
   }`
 
-  const articlesQuery = `*[_type == "newsItem" && count(categories[@->slug.current == $slug]) > 0]
+  const articlesQuery = `*[_type == "newsItem" && count(categories[@->slug.current == $slug || @->key == $slug]) > 0]
     | order(publishedAt desc)[0...12]{
       _id,
       title,

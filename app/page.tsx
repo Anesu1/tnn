@@ -39,7 +39,7 @@ async function getHomeData() {
     "slug": slug.current
   }`
 
-  const breakingQuery = `*[_type == "newsItem" && count(categories[@->slug.current == "breaking-news"]) > 0]
+  const breakingQuery = `*[_type == "newsItem" && count(categories[@->key == "breaking-news"]) > 0]
     | order(publishedAt desc)[0...4]{
       _id,
       title,
@@ -52,7 +52,7 @@ async function getHomeData() {
       "slug": slug.current
     }`
 
-  const politicsQuery = `*[_type == "newsItem" && count(categories[@->slug.current == "politics-governance"]) > 0]
+  const politicsQuery = `*[_type == "newsItem" && count(categories[@->key == "politics-governance"]) > 0]
     | order(publishedAt desc)[0...4]{
       _id,
       title,
@@ -65,7 +65,7 @@ async function getHomeData() {
       "slug": slug.current
     }`
 
-  const businessQuery = `*[_type == "newsItem" && count(categories[@->slug.current == "business-economy"]) > 0]
+  const businessQuery = `*[_type == "newsItem" && count(categories[@->key == "business-economy"]) > 0]
     | order(publishedAt desc)[0...4]{
       _id,
       title,
@@ -78,7 +78,7 @@ async function getHomeData() {
       "slug": slug.current
     }`
 
-  const socialQuery = `*[_type == "newsItem" && count(categories[@->slug.current == "social-community-affairs"]) > 0]
+  const socialQuery = `*[_type == "newsItem" && count(categories[@->key == "social-community-affairs"]) > 0]
     | order(publishedAt desc)[0...4]{
       _id,
       title,
@@ -91,7 +91,7 @@ async function getHomeData() {
       "slug": slug.current
     }`
 
-  const creativeQuery = `*[_type == "newsItem" && count(categories[@->slug.current == "creative-cultural-industries"]) > 0]
+  const creativeQuery = `*[_type == "newsItem" && count(categories[@->key == "creative-cultural-industries"]) > 0]
     | order(publishedAt desc)[0...4]{
       _id,
       title,
@@ -104,7 +104,7 @@ async function getHomeData() {
       "slug": slug.current
     }`
 
-  const sportsQuery = `*[_type == "newsItem" && count(categories[@->slug.current == "sports-entertainment"]) > 0]
+  const sportsQuery = `*[_type == "newsItem" && count(categories[@->key == "sports-entertainment"]) > 0]
     | order(publishedAt desc)[0...4]{
       _id,
       title,
