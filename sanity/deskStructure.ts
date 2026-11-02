@@ -1,5 +1,5 @@
 import type {StructureResolver} from 'sanity/structure'
-import {ClockIcon, WarningOutlineIcon} from '@sanity/icons'
+import {ClockIcon, UndoIcon, WarningOutlineIcon} from '@sanity/icons'
 
 // Published stories missing what newsItemType now requires before publishing
 const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (
@@ -22,7 +22,16 @@ export const structure: StructureResolver = (S) =>
         .child(
           S.documentList()
             .title('Awaiting approval')
-            .filter('_type == "newsItem" && _id in path("drafts.**")')
+            .filter('_type == "newsItem" && _id in path("drafts.**") && reviewStatus != "changesRequested"')
+            .defaultOrdering([{field: '_updatedAt', direction: 'desc'}]),
+        ),
+      S.listItem()
+        .title('Sent back to writers')
+        .icon(UndoIcon)
+        .child(
+          S.documentList()
+            .title('Sent back to writers')
+            .filter('_type == "newsItem" && _id in path("drafts.**") && reviewStatus == "changesRequested"')
             .defaultOrdering([{field: '_updatedAt', direction: 'desc'}]),
         ),
       S.listItem()
@@ -35,5 +44,7 @@ export const structure: StructureResolver = (S) =>
             .defaultOrdering([{field: 'publishedAt', direction: 'desc'}]),
         ),
       S.divider(),
-      ...S.documentTypeListItems(),
+      // "writer" is the old separate login record, replaced by portal access on authors.
+      // It stays registered only so scripts/migrate-writers-to-authors.mjs can move old records.
+      ...S.documentTypeListItems().filter((item) => item.getId() !== 'writer'),
     ])

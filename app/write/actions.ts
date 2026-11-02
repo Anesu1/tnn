@@ -158,9 +158,13 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
     readTime: readTime(content),
     categories: validCategories.map((ref) => ({ _type: 'reference', _ref: ref, _key: key() })),
     submittedBy: { _type: 'reference', _ref: writer._id },
+    // Every submission goes (back) into the chief editor's approval queue
+    reviewStatus: 'submitted',
   }
-  if (writer.author?._ref) {
-    fields.author = { _type: 'reference', _ref: writer.author._ref }
+  // Writers are author documents, so their own profile is the byline. Only set it on
+  // first submission: the chief editor may change the byline while reviewing.
+  if (!id) {
+    fields.author = { _type: 'reference', _ref: writer._id }
   }
 
   if (image instanceof File && image.size > 0) {

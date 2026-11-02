@@ -1,12 +1,24 @@
 import {UserIcon} from '@sanity/icons'
-import {defineArrayMember, defineField, defineType} from 'sanity'
+import {defineField, defineType} from 'sanity'
 
-// Ensure compliance with the schema requirements
+import {AccessCodeInput} from '../components/AccessCodeInput'
+
+// One record per person: their public byline profile, plus optional access to the
+// /write portal. Their email and password hash are kept in private
+// "writerAccount.<authorId>" documents (see lib/writer-auth.ts).
 export default defineType({
   name: 'author',
   title: 'Author',
   type: 'document',
   icon: UserIcon,
+  fieldsets: [
+    {
+      name: 'portal',
+      title: 'Writer portal',
+      description: 'Let this person submit stories at /write for you to review and publish',
+      options: {collapsible: true, collapsed: false},
+    },
+  ],
   fields: [
     defineField({
       name: 'name',
@@ -65,11 +77,38 @@ export default defineType({
         },
       ],
     }),
+    defineField({
+      name: 'portalAccess',
+      title: 'Can sign in to the writer portal',
+      type: 'boolean',
+      fieldset: 'portal',
+      description: 'Turn off to remove their access immediately. Their published stories stay live.',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'accessCodeHash',
+      title: 'Invite code',
+      type: 'string',
+      fieldset: 'portal',
+      components: {input: AccessCodeInput},
+      hidden: ({document}) => !document?.portalAccess,
+      validation: (Rule) =>
+        Rule.custom((hash, context) =>
+          context.document?.portalAccess && !hash ? 'Generate an invite code so they can set up their account' : true,
+        ),
+    }),
   ],
   preview: {
     select: {
       title: 'name',
+      role: 'role',
+      portalAccess: 'portalAccess',
       media: 'photo',
     },
+    prepare: ({title, role, portalAccess, media}) => ({
+      title,
+      subtitle: [role, portalAccess && 'Writer portal'].filter(Boolean).join(' · ') || undefined,
+      media,
+    }),
   },
 })

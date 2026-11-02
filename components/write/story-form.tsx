@@ -18,9 +18,11 @@ export type StoryFormValues = {
 type Props = {
   categories: { _id: string; title: string }[]
   initial?: StoryFormValues
+  // The story was sent back with changes requested, so saving resubmits it
+  resubmit?: boolean
 }
 
-export function StoryForm({ categories, initial = {} }: Props) {
+export function StoryForm({ categories, initial = {}, resubmit = false }: Props) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(saveStoryAction, {})
   const selected = new Set(initial.categories ?? [])
 
@@ -88,7 +90,7 @@ export function StoryForm({ categories, initial = {} }: Props) {
 
       <div className="form-actions">
         <button className="button" disabled={pending}>
-          {pending ? "Saving…" : initial.id ? "Save changes" : "Submit for approval"}
+          {pending ? "Saving…" : resubmit ? "Resubmit for approval" : initial.id ? "Save changes" : "Submit for approval"}
         </button>
         <Link href="/write" className="button outline">
           Cancel

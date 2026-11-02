@@ -26,7 +26,7 @@ export function AccessCodeInput(props: StringInputProps) {
             </Text>
             <Code size={2}>{code}</Code>
             <Text size={1} muted>
-              Publish this writer, then they go to /write/join, enter the code and choose their email and password.
+              Publish this author, then they go to /write/join, enter the code and choose their email and password.
               The code works once.
             </Text>
           </Stack>

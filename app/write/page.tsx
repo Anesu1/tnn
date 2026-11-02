@@ -9,10 +9,12 @@ type StoryDoc = {
   title?: string
   slug?: string
   image?: string
+  reviewStatus?: string
+  editorNote?: string
   _updatedAt: string
 }
 
-type Story = StoryDoc & { baseId: string; published: boolean; pending: boolean }
+type Story = StoryDoc & { baseId: string; published: boolean; pending: boolean; sentBack: boolean }
 
 // The raw perspective returns both the draft and published copy of a story; merge them per story
 function groupStories(docs: StoryDoc[]): Story[] {
@@ -21,11 +23,17 @@ function groupStories(docs: StoryDoc[]): Story[] {
     const isDraft = doc._id.startsWith("drafts.")
     const baseId = doc._id.replace(/^drafts\./, "")
     const existing = byId.get(baseId)
-    const story = existing ?? { ...doc, baseId, published: false, pending: false }
-    if (isDraft) story.pending = true
-    else story.published = true
+    const story = existing ?? { ...doc, baseId, published: false, pending: false, sentBack: false }
     // Show the most recently edited copy's title and photo
     if (existing && doc._updatedAt > existing._updatedAt) Object.assign(story, doc)
+    if (isDraft) {
+      story.pending = true
+      // Review status and the editor's note only ever live on the draft
+      story.sentBack = doc.reviewStatus === "changesRequested"
+      story.editorNote = doc.editorNote
+    } else {
+      story.published = true
+    }
     byId.set(baseId, story)
   }
   return [...byId.values()].sort((a, b) => b._updatedAt.localeCompare(a._updatedAt))
@@ -43,12 +51,13 @@ export default async function WriterDashboard({
 
   const docs = await getWriteClient().fetch<StoryDoc[]>(
     `*[_type == "newsItem" && submittedBy._ref == $writerId]{
-      _id, title, "slug": slug.current, "image": mainImage.asset->url, _updatedAt
+      _id, title, "slug": slug.current, "image": mainImage.asset->url, reviewStatus, editorNote, _updatedAt
     }`,
     { writerId: writer._id },
   )
   const stories = groupStories(docs)
-  const awaiting = stories.filter((s) => !s.published)
+  const sentBack = stories.filter((s) => !s.published && s.sentBack)
+  const awaiting = stories.filter((s) => !s.published && !s.sentBack)
   const published = stories.filter((s) => s.published)
 
   return (
@@ -60,7 +69,7 @@ export default async function WriterDashboard({
           <p className="intro">
             {stories.length === 0
               ? "Write and submit stories here. The chief editor reviews each one before it goes live."
-              : `You have contributed ${stories.length} ${stories.length === 1 ? "story" : "stories"}: ${published.length} published, ${awaiting.length} awaiting approval.`}
+              : `You have contributed ${stories.length} ${stories.length === 1 ? "story" : "stories"}: ${published.length} published, ${awaiting.length} awaiting approval${sentBack.length ? `, ${sentBack.length} sent back to you` : ""}.`}
           </p>
         </div>
         <Link href="/write/new" className="button">
@@ -72,6 +81,35 @@ export default async function WriterDashboard({
         <div className="notice success" role="status">
           Your story was saved and sent to the chief editor for approval.
         </div>
+      )}
+
+      {sentBack.length > 0 && (
+        <>
+          <div className="section-head">
+            <h2>Sent back to you</h2>
+            <span className="meta">{sentBack.length}</span>
+          </div>
+          {sentBack.map((story) => (
+            <div className="story" key={story.baseId}>
+              <div className="thumb">{story.image && <img src={`${story.image}?w=200&h=125&fit=crop`} alt="" />}</div>
+              <div>
+                <span className="label">Needs changes</span>
+                <span className="status changes">Changes requested</span>
+                <h3>{story.title || "Untitled story"}</h3>
+                {story.editorNote && (
+                  <p className="editor-note">
+                    <strong>Note from the editor:</strong> {story.editorNote}
+                  </p>
+                )}
+              </div>
+              <div className="story-actions">
+                <Link href={`/write/${story.baseId}`} className="button">
+                  Make changes
+                </Link>
+              </div>
+            </div>
+          ))}
+        </>
       )}
 
       <div className="section-head">

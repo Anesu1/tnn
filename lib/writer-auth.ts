@@ -11,15 +11,15 @@ const SESSION_DAYS = 30
 // Cloudflare Workers cap PBKDF2 at 100k iterations
 const PBKDF2_ITERATIONS = 100_000
 
+// A writer is an author document with portal access; their _id is also their byline reference
 export type Writer = {
   _id: string
   name: string
-  active?: boolean
+  portalAccess?: boolean
   accessCodeHash?: string
-  author?: { _ref: string }
 }
 
-// Login details live in "writerAccount.<writerId>" documents. IDs containing a dot are
+// Login details live in "writerAccount.<authorId>" documents. IDs containing a dot are
 // private in Sanity, so emails and password hashes can't be read from the public dataset.
 type WriterAccount = {
   _id: string
@@ -30,7 +30,9 @@ type WriterAccount = {
   inviteHash: string
 }
 
-const WRITER_FIELDS = '_id, name, active, accessCodeHash, author'
+const WRITER_FIELDS = '_id, name, portalAccess, accessCodeHash'
+// Only published authors with portal access switched on can join or sign in
+const CAN_SIGN_IN = '_type == "author" && portalAccess == true && !(_id in path("drafts.**"))'
 const accountId = (writerId: string) => `writerAccount.${writerId}`
 
 const encoder = new TextEncoder()
@@ -102,7 +104,7 @@ export async function joinWithInvite(code: string, email: string, password: stri
   const client = getWriteClient()
   const inviteHash = await hashAccessCode(code)
   const writer = await client.fetch<Writer | null>(
-    `*[_type == "writer" && accessCodeHash == $inviteHash && active != false && !(_id in path("drafts.**"))][0]{${WRITER_FIELDS}}`,
+    `*[${CAN_SIGN_IN} && accessCodeHash == $inviteHash][0]{${WRITER_FIELDS}}`,
     { inviteHash },
   )
   if (!writer) return { ok: false, error: 'That invite code isn’t valid. Check it with your editor.' }
@@ -146,10 +148,10 @@ export async function signIn(email: string, password: string): Promise<boolean> 
   }
   if (!safeEqual(await hashPassword(password, account.salt), account.passwordHash)) return false
 
-  const writer = await client.fetch<Writer | null>(`*[_type == "writer" && _id == $id][0]{${WRITER_FIELDS}}`, {
+  const writer = await client.fetch<Writer | null>(`*[${CAN_SIGN_IN} && _id == $id][0]{${WRITER_FIELDS}}`, {
     id: account.writerId,
   })
-  if (!writer || writer.active === false) return false
+  if (!writer) return false
 
   await createSession(account)
   return true
@@ -183,16 +185,16 @@ export async function getCurrentWriter(): Promise<Writer | null> {
   }
   if (!valid || Number(expires) < Date.now()) return null
 
-  // Re-check on every request so turning off "Can sign in" or resetting a password takes effect immediately
+  // Re-check on every request so turning off portal access or resetting a password takes effect immediately
   const result = await getWriteClient().fetch<{ writer: Writer | null; passwordHash?: string }>(
     `{
-      "writer": *[_type == "writer" && _id == $id][0]{${WRITER_FIELDS}},
+      "writer": *[${CAN_SIGN_IN} && _id == $id][0]{${WRITER_FIELDS}},
       "passwordHash": *[_id == $accountId][0].passwordHash
     }`,
     { id: writerId, accountId: accountId(writerId) },
   )
   const { writer, passwordHash } = result
-  if (!writer || writer.active === false || passwordHash?.slice(0, 16) !== hashPrefix) return null
+  if (!writer || passwordHash?.slice(0, 16) !== hashPrefix) return null
   return writer
 }
 

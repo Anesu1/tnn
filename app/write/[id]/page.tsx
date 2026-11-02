@@ -12,6 +12,8 @@ type DraftStory = {
   categories?: string[]
   image?: string
   imageAlt?: string
+  reviewStatus?: string
+  editorNote?: string
 }
 
 export default async function EditStoryPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,7 +25,7 @@ export default async function EditStoryPage({ params }: { params: Promise<{ id: 
       ? getWriteClient().fetch<DraftStory | null>(
           `*[_id == $draftId && submittedBy._ref == $writerId][0]{
             title, excerpt, content, "categories": categories[]._ref,
-            "image": mainImage.asset->url, "imageAlt": mainImage.alt
+            "image": mainImage.asset->url, "imageAlt": mainImage.alt, reviewStatus, editorNote
           }`,
           { draftId: `drafts.${id}`, writerId: writer._id },
         )
@@ -45,17 +47,28 @@ export default async function EditStoryPage({ params }: { params: Promise<{ id: 
     )
   }
 
-  const content = (draft.content ?? [])
+  const { reviewStatus, editorNote, ...story } = draft
+  const sentBack = reviewStatus === "changesRequested"
+  const content = (story.content ?? [])
     .filter((block) => block._type === "block")
     .map((block) => (block.children ?? []).map((child) => child.text ?? "").join(""))
     .join("\n\n")
 
   return (
     <>
-      <span className="label">Awaiting approval</span>
+      <span className="label">{sentBack ? "Changes requested" : "Awaiting approval"}</span>
       <h1 style={{ marginTop: 8 }}>Edit your story</h1>
-      <p className="intro">You can keep editing until the chief editor publishes it.</p>
-      <StoryForm categories={categories} initial={{ id, ...draft, content }} />
+      <p className="intro">
+        {sentBack
+          ? "The chief editor sent this story back. Make the changes below, then resubmit it for approval."
+          : "You can keep editing until the chief editor publishes it."}
+      </p>
+      {sentBack && editorNote && (
+        <p className="editor-note" style={{ maxWidth: 760, marginTop: 20 }}>
+          <strong>Note from the editor:</strong> {editorNote}
+        </p>
+      )}
+      <StoryForm categories={categories} initial={{ id, ...story, content }} resubmit={sentBack} />
     </>
   )
 }

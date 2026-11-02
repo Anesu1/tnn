@@ -56,6 +56,8 @@
 .tnn-portal .status { font-size: 11px; padding: 3px 6px; border: 1px solid var(--line); margin-left: 8px; text-transform: uppercase; letter-spacing: 1px; }
 .tnn-portal .status.pending { border-color: #c97915; color: #8a5208; }
 .tnn-portal .status.live { border-color: var(--green); color: var(--green); }
+.tnn-portal .status.changes { border-color: var(--red); color: var(--red); }
+.tnn-portal .editor-note { background: #eeefe8; border-left: 3px solid var(--red); padding: 10px 14px; margin: 8px 0 0; font-size: 14px; white-space: pre-line; }
 .tnn-portal .empty { padding: 30px; border: 1px solid var(--line); margin-top: 20px; }
 
 .tnn-portal .panel { max-width: 460px; margin: 24px auto 0; border: 1px solid var(--line); background: white; padding: 32px; }
