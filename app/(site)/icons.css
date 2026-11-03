@@ -1,0 +1,14 @@
+/* Icon sizing for the public site. Kept separate so site.css stays identical to the reference design. */
+.icon { width: 1em; height: 1em; flex: none; vertical-align: -0.14em; stroke-width: 2.25; }
+:where(a, button, span) > .icon:first-child { margin-right: 0.45em; }
+:where(a, button, span) > .icon:last-child:not(:first-child) { margin-left: 0.35em; }
+.button .icon, .actions .icon { vertical-align: 0; }
+.nav .search-link .icon { width: 1.05em; height: 1.05em; }
+.meta .icon { width: 0.95em; height: 0.95em; vertical-align: -0.15em; }
+/* Footer social links already have a 9px flex gap; pull the external-link arrow closer to its label */
+.social-links a > .icon:last-child { margin-left: -5px; width: 0.85em; height: 0.85em; }
+/* The reference play circle with a solid triangle, nudged right so it looks centred */
+.play .icon-play { width: 20px; height: 20px; margin: 0 0 0 3px; stroke-width: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  a:hover > .icon-arrow-right:last-child, a:hover > .icon-arrow-up-right:last-child { transform: translateX(2px); transition: transform .15s; }
+}

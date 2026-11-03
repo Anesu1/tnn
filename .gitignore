@@ -30,3 +30,7 @@ next-env.d.ts
 .open-next
 .wrangler
 .dev.vars*
+
+# story drafts and images dropped into the project folder
+/*.docx
+/featured image.jpeg

@@ -57,6 +57,12 @@ export default {
                             context.parent?.asset && !alt?.trim() ? "Describe the photo before publishing" : true,
                         ),
                 },
+                {
+                    name: "caption",
+                    type: "string",
+                    title: "Caption and credit",
+                    description: "Shown under the photo on the story page, e.g. “Photo: supplied”",
+                },
             ],
         },
         {
@@ -77,6 +83,30 @@ export default {
             description: "The first section is the main one: it is shown on the story and decides where it appears",
             of: [{ type: "reference", to: { type: "category" } }],
             validation: (Rule: any) => Rule.required().min(1).error("Choose at least one section before publishing"),
+        },
+        {
+            name: "region",
+            title: "Region",
+            type: "string",
+            description: "Where the story is from. Decides the Zimbabwe, Africa and World pages it appears on.",
+            options: {
+                list: [
+                    { title: "Zimbabwe", value: "zimbabwe" },
+                    { title: "Africa", value: "africa" },
+                    { title: "World", value: "world" },
+                ],
+                layout: "radio",
+                direction: "horizontal",
+            },
+            validation: (Rule: any) => Rule.required().error("Choose a region before publishing"),
+        },
+        {
+            name: "archived",
+            title: "Archive story",
+            type: "boolean",
+            description:
+                "Moves the story from Latest news to the Archive and labels it “Archive”, for earlier reporting whose facts may have changed",
+            initialValue: false,
         },
         {
             name: "tags",
@@ -103,6 +133,27 @@ export default {
                             description: "Important for SEO and accessibility",
                         },
                     ],
+                },
+            ],
+        },
+        {
+            name: "sources",
+            title: "Sources & further reading",
+            type: "array",
+            description: "Listed at the end of the story",
+            of: [
+                {
+                    type: "object",
+                    fields: [
+                        { name: "title", title: "Title", type: "string", validation: (Rule: any) => Rule.required() },
+                        {
+                            name: "url",
+                            title: "Link",
+                            type: "url",
+                            validation: (Rule: any) => Rule.required().uri({ scheme: ["http", "https"] }),
+                        },
+                    ],
+                    preview: { select: { title: "title", subtitle: "url" } },
                 },
             ],
         },

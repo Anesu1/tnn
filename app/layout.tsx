@@ -1,50 +1,31 @@
 import type React from "react"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
-import "./globals.css"
-import Header from "./Header"
-import Footer from "./Footer"
+import type { Metadata, Viewport } from "next"
 
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" })
-const geistSans = Geist({ subsets: ["latin"], variable: "--font-sans" })
-const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site/config"
 
+// Kept minimal on purpose: the public site, the writer portal and the Sanity Studio
+// each bring their own styles (app/(site)/site.css, app/write/portal.css, Studio built-ins).
 export const metadata: Metadata = {
-  title: "NewsStream - Global News & Live Coverage",
-  description: "Breaking news, in-depth analysis and live streaming from around the globe.",
-  generator: "v0.app",
+  metadataBase: new URL(SITE_URL),
+  title: `${SITE_NAME} — Zimbabwe, Africa and the world | TNN`,
+  description: SITE_DESCRIPTION,
   icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
+    icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/favicon.png", type: "image/png" }],
+    apple: "/apple-touch-icon.png",
+  },
+  alternates: {
+    types: { "application/rss+xml": [{ url: "/feed.xml", title: "TNN latest news" }] },
   },
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export const viewport: Viewport = {
+  themeColor: "#b51f2a",
+}
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} font-sans antialiased`}>
-      
-        {children}
-        <Analytics />
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

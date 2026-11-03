@@ -1,4 +1,5 @@
 /* Writer portal styles, based on the TNN reference design. Scoped to .tnn-portal. */
+body { margin: 0; }
 .tnn-portal {
   --red: #b51f2a;
   --ink: #171c19;

@@ -121,11 +121,13 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
   const imageAlt = String(formData.get('imageAlt') ?? '').trim()
   const image = formData.get('image')
   const categoryIds = formData.getAll('categories').map(String)
+  const region = String(formData.get('region') ?? '')
 
   // Match what the chief editor needs before publishing (see newsItemType validation)
   if (!title) return { error: 'Add a headline.' }
   if (!excerpt) return { error: 'Add a short summary of the story.' }
   if (categoryIds.length === 0) return { error: 'Choose at least one section.' }
+  if (!['zimbabwe', 'africa', 'world'].includes(region)) return { error: 'Choose the region the story is from.' }
   if (!content) return { error: 'Write the story before submitting.' }
 
   const existing = id ? await findOwnDraft(id, writer._id) : null
@@ -156,6 +158,7 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
     excerpt,
     content: toBlocks(content),
     readTime: readTime(content),
+    region,
     categories: validCategories.map((ref) => ({ _type: 'reference', _ref: ref, _key: key() })),
     submittedBy: { _type: 'reference', _ref: writer._id },
     // Every submission goes (back) into the chief editor's approval queue

@@ -5,6 +5,7 @@ import {ArchiveIcon, ClockIcon, UndoIcon, UserIcon, UsersIcon, WarningOutlineIco
 const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (
   !defined(author) ||
   count(coalesce(categories, [])) == 0 ||
+  !defined(region) ||
   !defined(excerpt) || excerpt == "" ||
   (defined(mainImage.asset) && (!defined(mainImage.alt) || mainImage.alt == ""))
 )`
@@ -39,7 +40,7 @@ export const structure: StructureResolver = (S) =>
         .icon(WarningOutlineIcon)
         .child(
           S.documentList()
-            .title('Missing byline, section, summary or photo description')
+            .title('Missing byline, section, region, summary or photo description')
             .filter(NEEDS_ATTENTION_FILTER)
             .defaultOrdering([{field: 'publishedAt', direction: 'desc'}]),
         ),

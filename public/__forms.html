@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>TNN forms</title><meta name="robots" content="noindex"></head>
+<body>
+<!-- Static copies of the site's forms so Netlify Forms can detect them at deploy time.
+     The real forms live on /contact and /newsletter and post here via /assets/site.js. -->
+<form name="newsroom-enquiries" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="newsroom-enquiries">
+  <input name="bot-field">
+  <input name="name">
+  <input name="email" type="email">
+  <select name="type"><option value="news-tip">News tip</option><option value="correction">Correction</option><option value="advertising">Advertising</option><option value="production">Production brief</option><option value="general">General enquiry</option></select>
+  <input name="article" type="url">
+  <textarea name="message"></textarea>
+  <input type="checkbox" name="consent" value="yes">
+</form>
+<form name="email-briefing" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="email-briefing">
+  <input name="bot-field">
+  <input name="email" type="email">
+  <input name="briefing-interest" type="checkbox" value="yes">
+  <input type="checkbox" name="consent" value="yes">
+</form>
+</body>
+</html>

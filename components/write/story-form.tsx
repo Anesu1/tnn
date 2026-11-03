@@ -11,9 +11,16 @@ export type StoryFormValues = {
   excerpt?: string
   content?: string
   categories?: string[]
+  region?: string
   image?: string
   imageAlt?: string
 }
+
+const REGIONS = [
+  { value: "zimbabwe", title: "Zimbabwe" },
+  { value: "africa", title: "Africa" },
+  { value: "world", title: "World" },
+]
 
 type Props = {
   categories: { _id: string; title: string }[]
@@ -60,6 +67,27 @@ export function StoryForm({ categories, initial = {}, resubmit = false }: Props)
           </div>
         </fieldset>
       )}
+
+      <fieldset style={{ border: 0, padding: 0, margin: "20px 0 0" }}>
+        <legend style={{ fontSize: 14, fontWeight: "bold" }}>
+          Region
+          <span className="hint">Where the story is from.</span>
+        </legend>
+        <div className="checks">
+          {REGIONS.map((region) => (
+            <label key={region.value}>
+              <input
+                type="radio"
+                name="region"
+                value={region.value}
+                defaultChecked={initial.region === region.value}
+                required
+              />
+              {region.title}
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
       <label htmlFor="image">
         Main photo
