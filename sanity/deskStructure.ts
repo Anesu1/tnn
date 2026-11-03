@@ -1,5 +1,5 @@
 import type {StructureResolver} from 'sanity/structure'
-import {ClockIcon, UndoIcon, WarningOutlineIcon} from '@sanity/icons'
+import {ArchiveIcon, ClockIcon, UndoIcon, UserIcon, UsersIcon, WarningOutlineIcon} from '@sanity/icons'
 
 // Published stories missing what newsItemType now requires before publishing
 const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (
@@ -44,7 +44,34 @@ export const structure: StructureResolver = (S) =>
             .defaultOrdering([{field: 'publishedAt', direction: 'desc'}]),
         ),
       S.divider(),
-      // "writer" is the old separate login record, replaced by portal access on authors.
-      // It stays registered only so scripts/migrate-writers-to-authors.mjs can move old records.
-      ...S.documentTypeListItems().filter((item) => item.getId() !== 'writer'),
+      S.listItem()
+        .title('People')
+        .icon(UsersIcon)
+        .child(
+          S.list()
+            .title('People')
+            .items([
+              S.listItem()
+                .title('All authors')
+                .icon(UserIcon)
+                .child(S.documentTypeList('author').title('All authors')),
+              S.listItem()
+                .title('Writers with portal access')
+                .icon(UsersIcon)
+                .child(
+                  S.documentList()
+                    .title('Writers with portal access')
+                    .schemaType('author')
+                    .filter('_type == "author" && portalAccess == true'),
+                ),
+              S.divider(),
+              // "writer" is the old separate login record, replaced by portal access on authors.
+              // Kept visible until scripts/migrate-writers-to-authors.mjs has moved them.
+              S.listItem()
+                .title('Old writer records (to migrate)')
+                .icon(ArchiveIcon)
+                .child(S.documentTypeList('writer').title('Old writer records (read-only)')),
+            ]),
+        ),
+      ...S.documentTypeListItems().filter((item) => !['author', 'writer'].includes(item.getId() ?? '')),
     ])
