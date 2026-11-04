@@ -2,15 +2,21 @@ import 'server-only'
 
 import { after } from 'next/server'
 
-import { addDays, formatDay, harareHour, label, REPORT_KINDS, SCHEDULE, todayISO, type Role } from './config'
+import { addDays, formatDay, harareHour, label, REPORT_KINDS, ROLE_LABELS, SCHEDULE, todayISO, type Role } from './config'
+import { createInvite } from './auth'
 import { db } from './db'
 import { decisions, dueReports, listItems, type DueReport } from './data'
-import { renderEmail, type EmailContent } from './email'
+import { inviteEmail, renderEmail, type EmailContent } from './email'
 
-// Emails are only sent once DESK_REMINDERS_ENABLED is "true", so nothing goes out while the
-// Desk is being reviewed. In-app reminders and alerts always show.
+// Whether email is set up at all (Resend key and sender). Invitations only need this.
+export function canSendEmail() {
+  return !!process.env.RESEND_API_KEY && !!process.env.DESK_EMAIL_FROM
+}
+
+// Reminders and alerts are only sent once DESK_REMINDERS_ENABLED is "true", so nothing goes out
+// while the Desk is being reviewed. In-app reminders and alerts always show.
 export function emailEnabled() {
-  return process.env.DESK_REMINDERS_ENABLED === 'true' && !!process.env.RESEND_API_KEY && !!process.env.DESK_EMAIL_FROM
+  return process.env.DESK_REMINDERS_ENABLED === 'true' && canSendEmail()
 }
 
 async function emailsFor(role?: Role) {
@@ -20,8 +26,8 @@ async function emailsFor(role?: Role) {
   return rows.map((row) => row.email)
 }
 
-async function sendEmail(to: string[], subject: string, content: EmailContent) {
-  if (!emailEnabled() || to.length === 0) return false
+async function sendEmail(to: string[], subject: string, content: EmailContent, { invitation = false } = {}) {
+  if (!(invitation ? canSendEmail() : emailEnabled()) || to.length === 0) return false
   const { html, text } = renderEmail(content)
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -130,4 +136,15 @@ export async function runReminders(now = new Date()) {
     if (await once(`digest:${today}`, () => sendEmail(everyone, 'Morning summary', content))) sent++
   }
   return { sent }
+}
+
+// ----- Invitations -----
+
+// Emails someone a single-use link to set up their account (new accounts and resets).
+// Returns false if email isn't set up, so the caller can show a temporary password instead.
+export async function sendInvitation(userId: string): Promise<boolean> {
+  if (!canSendEmail()) return false
+  const invite = await createInvite(userId)
+  if (!invite) return false
+  return sendEmail([invite.email], 'Your Editorial Desk invitation', inviteEmail(invite.name, label(ROLE_LABELS, invite.role), `/desk/invite/${invite.token}`), { invitation: true })
 }

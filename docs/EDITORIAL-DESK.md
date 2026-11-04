@@ -49,9 +49,14 @@ node --env-file=.env.local scripts/desk-user.mjs create --email ceo@… --name "
 node --env-file=.env.local scripts/desk-user.mjs create --email editor@… --name "Full Name" --role editor
 ```
 
-Each command prints a temporary password. Give it to the person in person or by phone. At
-`/desk/login` they choose their own password and connect an authenticator app (Google or Microsoft
-Authenticator). After that, the CEO can add, reset or switch off accounts on the **Accounts** page.
+With `RESEND_API_KEY` and `DESK_EMAIL_FROM` set, each command emails the person an invitation in
+the site's design. Its link works once, for 3 days, and takes them straight to choosing a password
+and connecting an authenticator app (Google or Microsoft Authenticator). No password is ever
+emailed. Without email set up, or with `--no-email`, the command prints a temporary password
+instead; give it to the person in person or by phone.
+
+After that, the CEO can add, reset, re-invite or switch off accounts on the **Accounts** page.
+To send someone a fresh invitation: `node --env-file=.env.local scripts/desk-user.mjs invite --email …`.
 If the CEO loses their phone, run `node --env-file=.env.local scripts/desk-user.mjs reset --email …`.
 
 ## How it fits together

@@ -1,6 +1,6 @@
 import { requireDeskUser } from "@/lib/desk/auth"
 import { addDays, todayISO, weekStart } from "@/lib/desk/config"
-import { renderEmail, type EmailContent } from "@/lib/desk/email"
+import { inviteEmail, renderEmail, type EmailContent } from "@/lib/desk/email"
 import { digestEmail, emailEnabled, reportEmail } from "@/lib/desk/notify"
 
 // What each Desk email looks like. The morning summary uses today's real data; the others
@@ -11,6 +11,12 @@ export default async function EmailPreview({ searchParams }: { searchParams: Pro
   const today = todayISO()
 
   const samples: { name: string; who: string; subject: string; content: EmailContent }[] = [
+    {
+      name: "Invitation",
+      who: "New or reset accounts, when the CEO adds or resets them",
+      subject: "Your Editorial Desk invitation",
+      content: inviteEmail("Example Name", "Managing Editor", "/desk/invite/example"),
+    },
     { name: "Morning summary", who: "CEO and Managing Editor, 07:00 daily", subject: "Morning summary", content: await digestEmail() },
     {
       name: "Report reminder",

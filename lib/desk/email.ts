@@ -174,3 +174,28 @@ function renderText(content: EmailContent) {
   out.push('', '—', 'The Narrative Network · Shaping Africa’s Story, One Voice at a Time.', 'For approved TNN Editorial Desk accounts only.')
   return out.join('\n')
 }
+
+export const INVITE_DAYS = 3
+
+// Invitation to set up a Desk account. The link is single use; no password is ever emailed.
+export function inviteEmail(name: string, roleName: string, link: string): EmailContent {
+  return {
+    label: 'Invitation',
+    title: `${name.split(' ')[0]}, your Editorial Desk account is ready`,
+    intro: `You’ve been given ${roleName} access to the TNN Editorial Desk, the private workspace for editorial plans, reports and decisions.`,
+    preheader: `Set up your TNN Editorial Desk account. The link works for ${INVITE_DAYS} days.`,
+    sections: [
+      {
+        heading: 'Setting up takes two minutes',
+        text: [
+          '1. Click the button below.',
+          '2. Choose your own password (at least 12 characters).',
+          '3. Connect an authenticator app on your phone, such as Google Authenticator or Microsoft Authenticator, by scanning the QR code shown.',
+          '',
+          `The link works once and expires in ${INVITE_DAYS} days. If it has expired, ask the CEO to send a new one. If you weren’t expecting this email, you can ignore it.`,
+        ].join('\n'),
+      },
+    ],
+    action: { label: 'Set up your account', href: link },
+  }
+}

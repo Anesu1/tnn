@@ -1,9 +1,9 @@
-import { addAccountAction, resetAccountAction, signOutEverywhereAction, toggleAccountAction } from "@/app/desk/actions"
+import { addAccountAction, resendInviteAction, resetAccountAction, signOutEverywhereAction, toggleAccountAction } from "@/app/desk/actions"
 import { ActionForm, FormFooter, SubmitButton } from "@/components/desk/action-form"
 import { requireDeskUser } from "@/lib/desk/auth"
 import { formatStamp, ROLE_LABELS, type Role } from "@/lib/desk/config"
 import { db } from "@/lib/desk/db"
-import { emailEnabled } from "@/lib/desk/notify"
+import { canSendEmail, emailEnabled } from "@/lib/desk/notify"
 
 type Account = { id: string; name: string; email: string; role: Role; disabled: boolean; totp_enabled: boolean; must_change_password: boolean; last_sign_in: Date | null }
 
@@ -20,7 +20,8 @@ export default async function Accounts() {
         <div>
           <span className="label">CEO only</span>
           <h1 style={{ marginTop: 6 }}>Accounts</h1>
-          <p className="meta">Only these people can open the Desk. Each needs a password and an authenticator app.</p>
+          <p className="meta">Only these people can open the Desk. Each needs a password and an authenticator app.
+            New accounts get an email invitation to set these up.</p>
         </div>
       </div>
 
@@ -56,6 +57,16 @@ export default async function Accounts() {
                         <span className="meta">You</span>
                       ) : (
                         <>
+                          {a.must_change_password && !a.disabled && canSendEmail() && (
+                            <ActionForm action={resendInviteAction} className="form">
+                              <input type="hidden" name="id" value={a.id} />
+                              <FormFooter>
+                                <SubmitButton className="button small dark" pendingLabel="Sending…">
+                                  Send a new invitation
+                                </SubmitButton>
+                              </FormFooter>
+                            </ActionForm>
+                          )}
                           <ActionForm action={resetAccountAction} className="form">
                             <input type="hidden" name="id" value={a.id} />
                             <FormFooter>

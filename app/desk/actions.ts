@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect, unstable_rethrow } from 'next/navigation'
 
 import {
+  acceptInvite,
   audit,
   codeStep,
   getDeskUser,
@@ -38,7 +39,7 @@ import {
 } from '@/lib/desk/config'
 import { actualFor, isUuid, monthActuals, openItems, targetSet, upcomingMilestones, weekSummary, type Item } from '@/lib/desk/data'
 import { db, DeskSetupError, type Sql } from '@/lib/desk/db'
-import { alertCeo } from '@/lib/desk/notify'
+import { alertCeo, sendInvitation } from '@/lib/desk/notify'
 import { recentWebStories, webStories } from '@/lib/desk/sanity'
 
 export type FormState = { error?: string; message?: string; secret?: string }
@@ -860,8 +861,11 @@ export async function addAccountAction(_prev: FormState, fd: FormData): Promise<
         insert into users (email, name, role, password_hash) values (${email}, ${name}, ${role}, ${await hashPassword(temporary)}) returning id`
       await audit(sql, user.id, 'account_created', { entity: 'user', entityId: created.id, summary: `${name} (${ROLE_LABELS[role]})` })
     })
+    const [{ id }] = await db()<{ id: string }[]>`select id from users where email = ${email}`
+    const invited = await sendInvitation(id).catch((err) => (console.error('Desk invitation failed', err), false))
     revalidatePath('/desk/accounts')
-    return { message: `Account created. Give ${name} this temporary password in person or by phone. It is shown only once.`, secret: temporary }
+    if (invited) return { message: `Account created. An invitation to set it up has gone to ${email}; the link works for 3 days.` }
+    return { message: `Account created, but the invitation email couldn’t be sent. Give ${name} this temporary password in person or by phone. It is shown only once.`, secret: temporary }
   } catch (err) {
     return failure(err)
   }
@@ -873,11 +877,38 @@ export async function resetAccountAction(_prev: FormState, fd: FormData): Promis
     const id = text(fd, 'id', 40)
     if (!isUuid(id)) throw new UserError('That account no longer exists.')
     const temporary = await resetAccount(user, id)
+    const invited = await sendInvitation(id).catch((err) => (console.error('Desk invitation failed', err), false))
     revalidatePath('/desk/accounts')
-    return { message: 'Reset. They sign in with this temporary password, then choose a new one and connect their authenticator app again. It is shown only once.', secret: temporary }
+    if (invited) return { message: 'Reset. A new invitation has been emailed so they can choose a password and connect their authenticator app again.' }
+    return { message: 'Reset, but the invitation email couldn’t be sent. They sign in with this temporary password, then choose a new one and connect their authenticator app again. It is shown only once.', secret: temporary }
   } catch (err) {
     return failure(err)
   }
+}
+
+// Emails a fresh invitation to an account that hasn't been set up yet
+export async function resendInviteAction(_prev: FormState, fd: FormData): Promise<FormState> {
+  try {
+    await actor('ceo')
+    const id = text(fd, 'id', 40)
+    if (!isUuid(id)) throw new UserError('That account no longer exists.')
+    if (!(await sendInvitation(id))) throw new UserError('The invitation couldn’t be sent. Check the email settings, or use Reset to get a temporary password.')
+    revalidatePath('/desk/accounts')
+    return { message: 'A new invitation has been emailed. Earlier links no longer work.' }
+  } catch (err) {
+    return failure(err)
+  }
+}
+
+export async function acceptInviteAction(_prev: FormState, fd: FormData): Promise<FormState> {
+  try {
+    if (!(await acceptInvite(text(fd, 'token', 100)))) {
+      return { error: 'This invitation has expired or was already used. Ask the CEO to send a new one.' }
+    }
+  } catch (err) {
+    return failure(err)
+  }
+  redirect('/desk/login/setup')
 }
 
 export async function toggleAccountAction(fd: FormData) {

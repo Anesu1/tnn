@@ -339,3 +339,45 @@ export async function resetAccount(actor: DeskUser, userId: string) {
   await audit(sql, actor.id, 'account_reset', { entity: 'user', entityId: userId })
   return temporary
 }
+
+// ----- Invitations -----
+
+const INVITE_HOURS = 72
+
+// A new single-use link for an account that still needs setting up (new or reset). Making a new
+// one replaces any earlier link.
+export async function createInvite(userId: string) {
+  const token = randomBytes(32).toString('base64url')
+  const sql = db()
+  const [user] = await sql<{ email: string; name: string; role: Role }[]>`
+    update users set invite_token_hash = ${hashToken(token)}, invite_expires_at = ${new Date(Date.now() + INVITE_HOURS * 3600_000)}
+    where id = ${userId} and must_change_password and not disabled
+    returning email, name, role`
+  if (!user) return null
+  await audit(sql, null, 'invite_sent', { entity: 'user', entityId: userId, summary: `Invitation emailed to ${user.email}` })
+  return { ...user, token }
+}
+
+const INVITE_MATCH = (token: string) => db()`
+  invite_token_hash = ${hashToken(token)} and invite_expires_at > now() and must_change_password and not disabled`
+
+// Who an invitation is for, without using it up (email apps open links to scan them)
+export async function inviteDetails(token: string) {
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return null
+  const [user] = await db()<{ name: string; email: string; role: Role }[]>`
+    select name, email, role from users where ${INVITE_MATCH(token)}`
+  return user ?? null
+}
+
+// Uses the invitation: starts the short set-up session and makes the link stop working
+export async function acceptInvite(token: string) {
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return false
+  const sql = db()
+  const [user] = await sql<{ id: string }[]>`
+    update users set invite_token_hash = null, invite_expires_at = null
+    where ${INVITE_MATCH(token)} returning id`
+  if (!user) return false
+  await startSession(user.id, false)
+  await audit(sql, user.id, 'invite_used')
+  return true
+}

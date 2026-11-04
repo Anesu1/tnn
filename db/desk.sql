@@ -22,6 +22,10 @@ create table if not exists users (
   created_at timestamptz not null default now()
 );
 
+-- Invitation link: single use, expires. Only its SHA-256 is stored.
+alter table users add column if not exists invite_token_hash text;
+alter table users add column if not exists invite_expires_at timestamptz;
+
 -- Only a SHA-256 of each session token is stored, so a database leak can't be replayed as a login
 create table if not exists sessions (
   token_hash text primary key,
