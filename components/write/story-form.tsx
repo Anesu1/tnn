@@ -42,9 +42,12 @@ export function StoryForm({ categories, initial = {}, resubmit = false }: Props)
 
       <label htmlFor="excerpt">
         Summary
-        <span className="hint">One or two sentences shown under the headline on the homepage. Up to 200 characters.</span>
+        <span className="hint">
+          One or two sentences under the headline. Story cards show about the first 180 characters, so put the key point first. Up to 600
+          characters.
+        </span>
       </label>
-      <textarea id="excerpt" name="excerpt" defaultValue={initial.excerpt} maxLength={200} required />
+      <textarea id="excerpt" name="excerpt" defaultValue={initial.excerpt} maxLength={600} required />
 
       {categories.length > 0 && (
         <fieldset style={{ border: 0, padding: 0, margin: "20px 0 0" }}>

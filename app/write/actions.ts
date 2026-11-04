@@ -126,6 +126,8 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
   // Match what the chief editor needs before publishing (see newsItemType validation)
   if (!title) return { error: 'Add a headline.' }
   if (!excerpt) return { error: 'Add a short summary of the story.' }
+  // Same limit as the Studio's Summary field
+  if (excerpt.length > 600) return { error: 'Keep the summary under 600 characters.' }
   if (categoryIds.length === 0) return { error: 'Choose at least one section.' }
   if (!['zimbabwe', 'africa', 'world'].includes(region)) return { error: 'Choose the region the story is from.' }
   if (!content) return { error: 'Write the story before submitting.' }

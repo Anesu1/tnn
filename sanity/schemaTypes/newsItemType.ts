@@ -70,10 +70,12 @@ export default {
             title: "Summary",
             type: "text",
             rows: 3,
-            description: "One or two sentences shown under the headline on the homepage and in search results",
+            // Same limit as the writer portal (components/write/story-form.tsx)
+            description:
+                "One or two sentences under the headline. Story cards show about the first 180 characters, so put the key point first. Up to 600 characters.",
             validation: (Rule: any) => [
                 Rule.required().error("Add a summary before publishing"),
-                Rule.max(200).warning("Summaries over 200 characters get cut off on the homepage"),
+                Rule.max(600).error("Keep the summary under 600 characters"),
             ],
         },
         {
