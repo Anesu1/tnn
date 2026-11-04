@@ -3,8 +3,26 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Load the Desk's database driver from node_modules as-is instead of bundling it
+  serverExternalPackages: ["pg"],
   images: {
     unoptimized: true,
+  },
+  // The Editorial Desk is private: never indexed, cached, framed or sent as a referrer
+  async headers() {
+    return [
+      {
+        source: "/desk/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "private, no-store" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "same-origin" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+      { source: "/desk", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }, { key: "Cache-Control", value: "private, no-store" }, { key: "X-Frame-Options", value: "DENY" }] },
+    ]
   },
   // Addresses from the previous site design
   async redirects() {

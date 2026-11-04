@@ -3,6 +3,7 @@
 import { useActionState } from "react"
 
 import { joinAction, type FormState } from "@/app/write/actions"
+import { PasswordInput } from "@/components/password-input"
 
 export function JoinForm() {
   const [state, formAction, pending] = useActionState<FormState, FormData>(joinAction, {})
@@ -31,10 +32,10 @@ export function JoinForm() {
         Choose a password
         <span className="hint">At least 8 characters.</span>
       </label>
-      <input id="password" name="password" type="password" autoComplete="new-password" minLength={8} required />
+      <PasswordInput id="password" name="password" autoComplete="new-password" minLength={8} required />
 
       <label htmlFor="confirm">Confirm password</label>
-      <input id="confirm" name="confirm" type="password" autoComplete="new-password" minLength={8} required />
+      <PasswordInput id="confirm" name="confirm" autoComplete="new-password" minLength={8} required />
 
       {state.error && <p className="error" role="alert">{state.error}</p>}
       <div style={{ marginTop: 20 }}>

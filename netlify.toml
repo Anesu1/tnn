@@ -8,3 +8,7 @@
   # NEXT_PUBLIC_* values are public by design (they ship to the browser), and the dataset
   # name "production" matches all over node_modules, which made the secret scan fail the deploy
   SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SANITY_DATASET,NEXT_PUBLIC_SANITY_PROJECT_ID,NEXT_PUBLIC_SANITY_API_VERSION"
+
+# Supabase's root certificate, used to check the Editorial Desk's database connection
+[functions]
+  included_files = ["db/supabase-ca.crt"]

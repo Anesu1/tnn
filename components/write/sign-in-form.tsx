@@ -3,6 +3,7 @@
 import { useActionState } from "react"
 
 import { signInAction, type FormState } from "@/app/write/actions"
+import { PasswordInput } from "@/components/password-input"
 
 export function SignInForm() {
   const [state, formAction, pending] = useActionState<FormState, FormData>(signInAction, {})
@@ -13,7 +14,7 @@ export function SignInForm() {
       <input id="email" name="email" type="email" autoComplete="email" required />
 
       <label htmlFor="password">Password</label>
-      <input id="password" name="password" type="password" autoComplete="current-password" required />
+      <PasswordInput id="password" name="password" autoComplete="current-password" required />
 
       {state.error && <p className="error" role="alert">{state.error}</p>}
       <div style={{ marginTop: 20 }}>

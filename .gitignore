@@ -34,3 +34,4 @@ next-env.d.ts
 # story drafts and images dropped into the project folder
 /*.docx
 /featured image.jpeg
+/.desk-db

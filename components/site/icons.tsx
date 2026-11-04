@@ -1,6 +1,5 @@
 // Lucide icons (lucide.dev, ISC licence) used across the public site. The drawings are copied
-// from the installed lucide-react package so React pages and the static HTML pages render the
-// same SVG. Icons are decorative: the link or button text always carries the meaning.
+// in here so React pages and the static HTML pages render the same SVG. Icons are decorative: the link or button text always carries the meaning.
 
 const PATHS = {
   "arrow-up-right": '<path d="M7 7h10v10"/><path d="M7 17 17 7"/>',
