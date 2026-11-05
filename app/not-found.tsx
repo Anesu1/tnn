@@ -3,6 +3,7 @@ import { StaticPage } from "@/components/site/static-page"
 import { STATIC_PAGES } from "@/lib/site/static-pages"
 import "./(site)/site.css"
 import "./(site)/icons.css"
+import "./(site)/editorial.css"
 
 export const metadata = {
   title: { absolute: STATIC_PAGES["not-found"].title },

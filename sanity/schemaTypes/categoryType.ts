@@ -1,14 +1,15 @@
 import { TagIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
 
-// Updated the schema to include fixed categories and ensure compliance with requirements
+// The six editorial sections. Keep in sync with SECTIONS in lib/site/config.ts, which decides
+// the public section pages. Breaking news is a switch on each story, not a section.
 const fixedCategories = [
-  'Breaking News',
   'Politics & Governance',
   'Business & Economy',
-  'Social & Community Affairs',
-  'Creative & Cultural Industries',
-  'Sports & Entertainment',
+  'Health & Education',
+  'Community & Society',
+  'Sports & Culture',
+  'Entertainment & Lifestyle',
 ]
 
 export const categoryType = defineType({
@@ -68,14 +69,6 @@ export const categoryType = defineType({
       title: 'Category Color',
       type: 'string',
       description: 'Hex color (e.g. #e11d48)',
-    }),
-
-    // Breaking News logic
-    defineField({
-      name: 'isBreaking',
-      title: 'Breaking News Category',
-      type: 'boolean',
-      initialValue: false,
     }),
 
     // Homepage / navigation

@@ -1,5 +1,5 @@
 import { StoryGrid } from "@/components/site/stories"
-import { CATEGORY_LABELS } from "@/lib/site/config"
+import { SECTIONS } from "@/lib/site/config"
 import { pageMetadata } from "@/lib/site/metadata"
 import { getStories } from "@/lib/site/news"
 import { Icon } from "@/components/site/icons"
@@ -13,13 +13,7 @@ export const metadata = pageMetadata({
 })
 
 // Filtering happens in the browser (/assets/site.js) against /stories.json; every story is listed for no-JS visitors
-const CATEGORY_OPTIONS = [
-  CATEGORY_LABELS["politics-governance"],
-  CATEGORY_LABELS["business-economy"],
-  CATEGORY_LABELS["social-community-affairs"],
-  CATEGORY_LABELS["sports-entertainment"],
-  CATEGORY_LABELS["creative-cultural-industries"],
-]
+const CATEGORY_OPTIONS = SECTIONS.map((section) => section.title)
 
 export default async function SearchPage() {
   const stories = await getStories()

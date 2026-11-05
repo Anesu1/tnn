@@ -11,6 +11,7 @@ type DraftStory = {
   content?: { _type: string; children?: { text?: string }[] }[]
   categories?: string[]
   region?: string
+  storyType?: string
   image?: string
   imageAlt?: string
   reviewStatus?: string
@@ -25,7 +26,7 @@ export default async function EditStoryPage({ params }: { params: Promise<{ id: 
     /^[A-Za-z0-9-]+$/.test(id)
       ? getWriteClient().fetch<DraftStory | null>(
           `*[_id == $draftId && submittedBy._ref == $writerId][0]{
-            title, excerpt, content, "categories": categories[]._ref, region,
+            title, excerpt, content, "categories": categories[]._ref, region, storyType,
             "image": mainImage.asset->url, "imageAlt": mainImage.alt, reviewStatus, editorNote
           }`,
           { draftId: `drafts.${id}`, writerId: writer._id },

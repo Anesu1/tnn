@@ -1,4 +1,4 @@
-import { formatDate, VIDEOS } from "@/lib/site/config"
+import { formatDate, formatDateTime, VIDEOS } from "@/lib/site/config"
 import { cardSummary, imageSources, storyUrl, type Story, type StoryImage } from "@/lib/site/news"
 import { Icon } from "./icons"
 
@@ -44,12 +44,33 @@ export function StoryImg({
   )
 }
 
+// Section, then BREAKING (only until its end time), the story type (except ordinary news) and Archive
 function Labels({ story }: { story: Story }) {
   return (
     <>
       {story.categoryLabel && <span className="label">{story.categoryLabel}</span>}
+      {story.breaking && <span className="breaking-label">Breaking</span>}
+      {story.typeLabel && <span className="type-label">{story.typeLabel}</span>}
       {story.archived && <span className="status-label">Archive</span>}
     </>
+  )
+}
+
+// Red band above the homepage lead while stories are marked breaking
+export function BreakingBand({ stories }: { stories: Story[] }) {
+  if (stories.length === 0) return null
+  return (
+    <section className="breaking-band" aria-label="Breaking news">
+      <strong>Breaking</strong>
+      <ul>
+        {stories.slice(0, 3).map((story) => (
+          <li key={story.id}>
+            <a href={storyUrl(story.slug)}>{story.title}</a>
+            <span className="meta">{formatDateTime(story.publishedAt)}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }
 

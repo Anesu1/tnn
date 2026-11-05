@@ -7,26 +7,40 @@ export const SITE_DESCRIPTION = "News, perspectives and conversations from Zimba
 export const WHATSAPP_URL = "https://whatsapp.com/channel/0029VbCHiM5EquiT4lGKOy2L"
 export const YOUTUBE_URL = "https://www.youtube.com/@TheNarrativeNetwork-t9c"
 export const TIME_ZONE = "Africa/Harare"
+// Google Tag Manager container, loaded on the public site only (not the Desk, portal or Studio)
+export const GTM_ID = "GTM-K8DR5L5R"
 
-// Public section pages (/category/<slug>) and the Sanity category keys each one covers
+// Public section pages (/category/<slug>) and the Sanity category keys each one covers.
+// The six sections match the fixed list in sanity/schemaTypes/categoryType.ts.
 export const SECTIONS = [
-  { slug: "politics", title: "Politics & Governance", keys: ["politics-governance"] },
-  { slug: "business", title: "Business & Economy", keys: ["business-economy"] },
-  { slug: "community", title: "Social & Community", keys: ["social-community-affairs"] },
-  { slug: "sport-culture", title: "Sports & Entertainment", keys: ["sports-entertainment", "creative-cultural-industries"] },
+  { slug: "politics", title: "Politics & Governance", nav: "POLITICS", keys: ["politics-governance"] },
+  { slug: "business", title: "Business & Economy", nav: "BUSINESS", keys: ["business-economy"] },
+  { slug: "health-education", title: "Health & Education", nav: "HEALTH & EDUCATION", keys: ["health-education"] },
+  { slug: "community", title: "Community & Society", nav: "COMMUNITY", keys: ["community-society"] },
+  { slug: "sport-culture", title: "Sports & Culture", nav: "SPORT & CULTURE", keys: ["sports-culture"] },
+  { slug: "entertainment", title: "Entertainment & Lifestyle", nav: "ENTERTAINMENT", keys: ["entertainment-lifestyle"] },
 ] as const
 
 export type SectionSlug = (typeof SECTIONS)[number]["slug"]
 
 // Label shown on cards for each Sanity category key
-export const CATEGORY_LABELS: Record<string, string> = {
-  "politics-governance": "Politics & Governance",
-  "business-economy": "Business & Economy",
-  "social-community-affairs": "Social & Community",
-  "sports-entertainment": "Sports & Entertainment",
-  "creative-cultural-industries": "Creative & Cultural Industries",
-  "breaking-news": "Breaking News",
-}
+export const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
+  SECTIONS.flatMap((section) => section.keys.map((key) => [key, section.title])),
+)
+
+// Story types, as listed in the Studio and the writer portal. "news" has no label.
+export const STORY_TYPES = {
+  news: { label: "News", schema: "NewsArticle" },
+  live: { label: "Live updates", schema: "LiveBlogPosting" },
+  analysis: { label: "Analysis", schema: "AnalysisNewsArticle" },
+  opinion: { label: "Opinion", schema: "OpinionNewsArticle" },
+  investigation: { label: "Investigation", schema: "ReportageNewsArticle" },
+  interview: { label: "Interview", schema: "NewsArticle" },
+  explainer: { label: "Explainer", schema: "BackgroundNewsArticle" },
+  feature: { label: "Feature", schema: "NewsArticle" },
+} as const
+
+export type StoryType = keyof typeof STORY_TYPES
 
 export function sectionForCategoryKey(key?: string) {
   return SECTIONS.find((section) => key && (section.keys as readonly string[]).includes(key))
@@ -72,4 +86,19 @@ const dateFormat = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "lo
 
 export function formatDate(iso?: string) {
   return iso ? dateFormat.format(new Date(iso)) : ""
+}
+
+const dateTimeFormat = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+  timeZone: TIME_ZONE,
+})
+
+// "5 November 2026, 14:00 CAT" (Harare time)
+export function formatDateTime(iso?: string) {
+  return iso ? `${dateTimeFormat.format(new Date(iso)).replace(" at ", ", ")} CAT` : ""
 }

@@ -23,7 +23,21 @@ export default {
             name: "publishedAt",
             title: "Published at",
             type: "datetime",
-            description: "Set automatically the first time you publish. Change it here to backdate or correct it.",
+            description:
+                "Set automatically the first time you publish. Only change it to correct a wrong date, never to move a story up the homepage (use Homepage placement for that).",
+        },
+        {
+            name: "lastUpdated",
+            title: "Last substantial update",
+            type: "datetime",
+            description:
+                "Set this when the story gains important new information. Readers see “Updated …” and Google sees the change. Leave it alone for typo fixes.",
+            validation: (Rule: any) =>
+                Rule.custom((value: string | undefined, context: any) =>
+                    value && context.document?.publishedAt && value < context.document.publishedAt
+                        ? "The update can't be before the story was published"
+                        : true,
+                ),
         },
         {
             name: "readTime",
@@ -101,6 +115,81 @@ export default {
                 direction: "horizontal",
             },
             validation: (Rule: any) => Rule.required().error("Choose a region before publishing"),
+        },
+        {
+            // Same list as STORY_TYPES in lib/site/config.ts and the writer portal
+            name: "storyType",
+            title: "Story type",
+            type: "string",
+            description: "Shown as a label on the story, so readers can tell reporting from analysis and opinion",
+            initialValue: "news",
+            options: {
+                list: [
+                    { title: "News", value: "news" },
+                    { title: "Live updates", value: "live" },
+                    { title: "Analysis", value: "analysis" },
+                    { title: "Opinion", value: "opinion" },
+                    { title: "Investigation", value: "investigation" },
+                    { title: "Interview", value: "interview" },
+                    { title: "Explainer", value: "explainer" },
+                    { title: "Feature", value: "feature" },
+                ],
+            },
+        },
+        {
+            name: "placement",
+            title: "Homepage placement",
+            type: "string",
+            fieldset: "homepage",
+            description:
+                "Lead story: the large story at the top of the homepage (the newest active lead is used). Top story: pinned beside it. Normal: only in Latest news.",
+            options: {
+                list: [
+                    { title: "Normal", value: "normal" },
+                    { title: "Lead story", value: "lead" },
+                    { title: "Top story", value: "top" },
+                ],
+                layout: "radio",
+                direction: "horizontal",
+            },
+            initialValue: "normal",
+        },
+        {
+            name: "topOrder",
+            title: "Top story order",
+            type: "number",
+            fieldset: "homepage",
+            description: "1 shows first. Leave empty to order top stories by publish time.",
+            hidden: ({ document }: any) => document?.placement !== "top",
+            validation: (Rule: any) => Rule.integer().min(1).max(10),
+        },
+        {
+            name: "featuredUntil",
+            title: "Featured until",
+            type: "datetime",
+            fieldset: "homepage",
+            description: "When the story leaves its lead or top position. Leave empty to keep it there until you change it.",
+            hidden: ({ document }: any) => !document?.placement || document.placement === "normal",
+        },
+        {
+            name: "breaking",
+            title: "Breaking news",
+            type: "boolean",
+            fieldset: "homepage",
+            description: "Shows a red BREAKING label on the story and puts it in the breaking band at the top of the homepage.",
+            initialValue: false,
+        },
+        {
+            name: "breakingUntil",
+            title: "Breaking until",
+            type: "datetime",
+            fieldset: "homepage",
+            description: "When the BREAKING label comes off. Usually a few hours to a day after publishing.",
+            hidden: ({ document }: any) => !document?.breaking,
+            validation: (Rule: any) =>
+                Rule.custom((value: string | undefined, context: any) =>
+                    context.document?.breaking && !value ? "Choose when the story stops being breaking news" : true,
+                ),
         },
         {
             name: "archived",
@@ -207,6 +296,12 @@ export default {
 
     fieldsets: [
         {
+            name: "homepage",
+            title: "Homepage placement",
+            description: "Where the story appears on the homepage. Separate from the publish date, which never needs changing to move a story.",
+            options: { collapsible: true, collapsed: false },
+        },
+        {
             name: "review",
             title: "Editor review",
             description: "Send this story back to the writer with a note, or publish it",
@@ -220,11 +315,17 @@ export default {
             author: "author.name",
             writer: "submittedBy.name",
             reviewStatus: "reviewStatus",
+            placement: "placement",
+            breaking: "breaking",
+            breakingUntil: "breakingUntil",
             media: "mainImage",
         },
         prepare(selection: Record<string, any>) {
-            const { author, writer, reviewStatus, ...rest } = selection
+            const { author, writer, reviewStatus, placement, breaking, breakingUntil, ...rest } = selection
             const parts = [
+                breaking && breakingUntil > new Date().toISOString() && "BREAKING",
+                placement === "lead" && "Lead story",
+                placement === "top" && "Top story",
                 reviewStatus === "changesRequested" && "Sent back",
                 author && `by ${author}`,
                 writer && writer !== author && `submitted by ${writer}`,

@@ -1,5 +1,5 @@
 import type {StructureResolver} from 'sanity/structure'
-import {ArchiveIcon, ClockIcon, UndoIcon, UserIcon, UsersIcon, WarningOutlineIcon} from '@sanity/icons'
+import {ArchiveIcon, BoltIcon, ClockIcon, HomeIcon, StarIcon, UndoIcon, UserIcon, UsersIcon, WarningOutlineIcon} from '@sanity/icons'
 
 // Published stories missing what newsItemType now requires before publishing
 const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (
@@ -15,6 +15,39 @@ export const structure: StructureResolver = (S) =>
   S.list()
     .title('Content')
     .items([
+      // What the homepage shows above Latest news, as set in each story's Homepage placement
+      S.listItem()
+        .title('Homepage')
+        .icon(HomeIcon)
+        .child(
+          S.list()
+            .title('Homepage')
+            .items([
+              S.listItem()
+                .title('Lead and top stories')
+                .icon(StarIcon)
+                .child(
+                  S.documentList()
+                    .title('Lead and top stories')
+                    .filter(
+                      '_type == "newsItem" && !(_id in path("drafts.**")) && placement in ["lead", "top"] && (!defined(featuredUntil) || dateTime(featuredUntil) > dateTime(now()))',
+                    )
+                    .defaultOrdering([{field: 'placement', direction: 'asc'}, {field: 'topOrder', direction: 'asc'}]),
+                ),
+              S.listItem()
+                .title('Breaking now')
+                .icon(BoltIcon)
+                .child(
+                  S.documentList()
+                    .title('Breaking now')
+                    .filter(
+                      '_type == "newsItem" && !(_id in path("drafts.**")) && breaking == true && dateTime(breakingUntil) > dateTime(now())',
+                    )
+                    .defaultOrdering([{field: 'publishedAt', direction: 'desc'}]),
+                ),
+            ]),
+        ),
+      S.divider(),
       // Drafts written by contributors that the chief editor still needs to publish
       // (includes unpublished edits to stories that are already live)
       S.listItem()

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { ArticleBody } from "@/components/site/article-body"
 import { FollowBand } from "@/components/site/chrome"
 import { SectionHead, StoryGrid, StoryImg } from "@/components/site/stories"
-import { formatDate, SECTIONS, SITE_NAME, SITE_URL } from "@/lib/site/config"
+import { formatDateTime, SECTIONS, SITE_NAME, SITE_URL, STORY_TYPES } from "@/lib/site/config"
 import { pageMetadata } from "@/lib/site/metadata"
 import { getStoriesWith, getStory, imageSources, readTimeFor, storyUrl, type FullStory } from "@/lib/site/news"
 import { Icon } from "@/components/site/icons"
@@ -45,11 +45,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   const articleLd = {
     "@context": "https://schema.org",
-    "@type": "NewsArticle",
+    "@type": STORY_TYPES[story.storyType].schema,
     headline: story.title,
     description: story.summary,
     datePublished: story.publishedAt,
-    dateModified: story.updatedAt,
+    // Only substantial updates count, not typo fixes (Google News guidance)
+    dateModified: story.lastUpdated ?? story.publishedAt,
     author: {
       "@type": isNewsroom ? "Organization" : "Person",
       name: author.name,
@@ -80,6 +81,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             {story.regionTitle}
           </p>
         )}
+        {story.breaking && <span className="breaking-label">Breaking</span>}
+        {story.typeLabel && <span className="type-label">{story.typeLabel}</span>}
         {story.archived && <span className="status-label">Archive</span>}
         <h1>{story.title}</h1>
         {story.summary && <p className="standfirst">{story.summary}</p>}
@@ -87,7 +90,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <span>
             By <a href={`/authors/${author.slug}`}>{author.name}</a>
           </span>
-          <time dateTime={story.publishedAt}>Published {formatDate(story.publishedAt)}</time>
+          <time dateTime={story.publishedAt}>Published {formatDateTime(story.publishedAt)}</time>
+          {story.lastUpdated && <time dateTime={story.lastUpdated}>Updated {formatDateTime(story.lastUpdated)}</time>}
           <span>{readTimeFor(story)}</span>
         </div>
         {/* The editorial graphic repeats the headline, so stories without a photo have no cover */}

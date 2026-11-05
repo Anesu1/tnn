@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useActionState } from "react"
 
 import { saveStoryAction, type FormState } from "@/app/write/actions"
+import { STORY_TYPES } from "@/lib/site/config"
 
 export type StoryFormValues = {
   id?: string
@@ -12,6 +13,7 @@ export type StoryFormValues = {
   content?: string
   categories?: string[]
   region?: string
+  storyType?: string
   image?: string
   imageAlt?: string
 }
@@ -91,6 +93,18 @@ export function StoryForm({ categories, initial = {}, resubmit = false }: Props)
           ))}
         </div>
       </fieldset>
+
+      <label htmlFor="storyType">
+        Story type
+        <span className="hint">Readers see this as a label, so they can tell reporting from analysis and opinion.</span>
+      </label>
+      <select id="storyType" name="storyType" defaultValue={initial.storyType ?? "news"}>
+        {Object.entries(STORY_TYPES).map(([value, type]) => (
+          <option key={value} value={value}>
+            {type.label}
+          </option>
+        ))}
+      </select>
 
       <label htmlFor="image">
         Main photo

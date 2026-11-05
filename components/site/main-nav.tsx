@@ -1,20 +1,18 @@
 "use client"
 
 import { usePathname } from "next/navigation"
+import { SECTIONS } from "@/lib/site/config"
 import { Icon } from "./icons"
 
 const MAIN_NAV = [
   { href: "/latest", label: "LATEST" },
-  { href: "/category/politics", label: "POLITICS" },
-  { href: "/category/business", label: "BUSINESS" },
-  { href: "/category/community", label: "COMMUNITY" },
-  { href: "/category/sport-culture", label: "SPORT & CULTURE" },
+  ...SECTIONS.map((section) => ({ href: `/category/${section.slug}`, label: section.nav })),
   { href: "/watch", label: "WATCH TNN" },
   { href: "/archive", label: "ARCHIVE" },
 ]
 
 // The reference marks only Latest and the section pages as the current page
-const MARKS_CURRENT = new Set(["/latest", "/category/politics", "/category/business", "/category/community", "/category/sport-culture"])
+const MARKS_CURRENT = new Set(["/latest", ...SECTIONS.map((section) => `/category/${section.slug}`)])
 
 export function MainNav() {
   const pathname = usePathname()

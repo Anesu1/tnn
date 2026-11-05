@@ -1,5 +1,5 @@
 import { client } from "@/sanity/lib/client"
-import { CATEGORY_LABELS, REGIONS, sectionForCategoryKey, SITE_URL } from "./config"
+import { CATEGORY_LABELS, REGIONS, sectionForCategoryKey, SITE_URL, STORY_TYPES, type StoryType } from "./config"
 
 export type StoryImage = {
   url: string
@@ -28,6 +28,16 @@ export type Story = {
   image: StoryImage
   readTime?: string
   tags: string[]
+  storyType: StoryType
+  // Shown as a label for everything except ordinary news
+  typeLabel?: string
+  // Editor-set time of the last substantial update, when there has been one
+  lastUpdated?: string
+  // Homepage placement chosen by editors, only while it hasn't expired
+  placement?: "lead" | "top"
+  topOrder?: number
+  // Breaking label, only until its end time
+  breaking: boolean
 }
 
 export type FullStory = Story & {
@@ -54,6 +64,13 @@ type RawStory = {
   content?: unknown[]
   plainText?: string
   sources?: { title?: string; url?: string }[]
+  storyType?: string
+  lastUpdated?: string
+  placement?: string
+  topOrder?: number
+  featuredUntil?: string
+  breaking?: boolean
+  breakingUntil?: string
 }
 
 // Only published stories with a slug and date reach the public site (the client uses the published perspective)
@@ -65,7 +82,8 @@ const STORY_FIELDS = `
   "author": author->{name, "slug": slug.current},
   "image": mainImage{alt, caption, "url": asset->url,
     "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height},
-  readTime, "tags": tags[]->title`
+  readTime, "tags": tags[]->title,
+  storyType, lastUpdated, placement, topOrder, featuredUntil, breaking, breakingUntil`
 
 const FULL_STORY_FIELDS = `${STORY_FIELDS}, content, "plainText": pt::text(content), "sources": sources[]{title, url}`
 
@@ -90,6 +108,10 @@ function toStory(raw: RawStory): Story {
           graphic: true,
         }
 
+  const now = new Date().toISOString()
+  const storyType = (raw.storyType && raw.storyType in STORY_TYPES ? raw.storyType : "news") as StoryType
+  const placementActive = (raw.placement === "lead" || raw.placement === "top") && (!raw.featuredUntil || raw.featuredUntil > now)
+
   return {
     id: raw._id,
     title: raw.title,
@@ -107,6 +129,12 @@ function toStory(raw: RawStory): Story {
     image,
     readTime: raw.readTime,
     tags: raw.tags?.filter(Boolean) ?? [],
+    storyType,
+    typeLabel: storyType === "news" ? undefined : STORY_TYPES[storyType].label,
+    lastUpdated: raw.lastUpdated && raw.lastUpdated > raw.publishedAt ? raw.lastUpdated : undefined,
+    placement: placementActive ? (raw.placement as "lead" | "top") : undefined,
+    topOrder: raw.topOrder,
+    breaking: Boolean(raw.breaking && raw.breakingUntil && raw.breakingUntil > now),
   }
 }
 
@@ -172,5 +200,23 @@ export function imageSources(image: StoryImage) {
     src: at(Math.min(720, largest)),
     large: at(largest),
     srcSet: widths.map((w) => `${at(w)} ${w}w`).join(","),
+  }
+}
+
+// Homepage order, independent of publish time: the editors' lead story (newest active lead),
+// else the newest breaking story, else the newest story; then the pinned top stories in their
+// set order, topped up with the newest. Latest news stays chronological and skips these.
+export function homepageStories(stories: Story[], topCount = 3) {
+  const lead = stories.find((s) => s.placement === "lead") ?? stories.find((s) => s.breaking) ?? stories[0]
+  const pinned = stories
+    .filter((s) => s.placement === "top" && s !== lead)
+    .sort((a, b) => (a.topOrder ?? 99) - (b.topOrder ?? 99) || b.publishedAt.localeCompare(a.publishedAt))
+  const top = [...pinned, ...stories.filter((s) => s !== lead && !pinned.includes(s))].slice(0, topCount)
+  const shown = new Set([lead, ...top].filter(Boolean).map((s) => s!.id))
+  return {
+    lead,
+    top,
+    latest: stories.filter((s) => !shown.has(s.id)),
+    breaking: stories.filter((s) => s.breaking),
   }
 }

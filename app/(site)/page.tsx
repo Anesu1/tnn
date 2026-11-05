@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 
 import { FollowBand } from "@/components/site/chrome"
-import { FeatureStory, SectionHead, SideStory, StoryGrid, VideoGrid } from "@/components/site/stories"
+import { BreakingBand, FeatureStory, SectionHead, SideStory, StoryGrid, VideoGrid } from "@/components/site/stories"
 import { formatDate, SITE_DESCRIPTION, SITE_NAME, SITE_URL, WHATSAPP_URL, YOUTUBE_URL } from "@/lib/site/config"
-import { getStories } from "@/lib/site/news"
+import { getStories, homepageStories } from "@/lib/site/news"
 
 export const revalidate = 60
 
@@ -44,7 +44,8 @@ export default async function HomePage() {
   const stories = await getStories("", 80)
   const current = stories.filter((story) => !story.archived)
   const archived = stories.filter((story) => story.archived)
-  const [lead, ...rest] = current.length ? current : stories
+  // Placement is the editors' choice in the Studio, separate from publish time
+  const { lead, top, latest, breaking } = homepageStories(current.length ? current : stories)
   const zimbabwe = current.filter((story) => story.region === "zimbabwe").slice(0, 3)
   const africa = current.filter((story) => story.region === "africa").slice(0, 3)
   const world = stories.filter((story) => story.region === "world").slice(0, 3)
@@ -53,17 +54,20 @@ export default async function HomePage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_LD) }} />
 
+      {/* The lead carries its own BREAKING label, so the band only lists the other breaking stories */}
+      <BreakingBand stories={breaking.filter((story) => story.id !== lead?.id)} />
+
       {lead && (
         <>
           <div className="edition">
-            <strong>Latest news</strong>
-            <span>Latest publication · {formatDate(lead.publishedAt)}</span>
+            <strong>{lead.breaking ? "Breaking news" : "Top story"}</strong>
+            <span>Latest publication · {formatDate(current[0]?.publishedAt ?? lead.publishedAt)}</span>
           </div>
           <section className="hero" aria-label="Top stories">
             <FeatureStory story={lead} />
             <aside className="side">
-              <h2>More from TNN</h2>
-              {rest.slice(0, 3).map((story) => (
+              <h2>Top stories</h2>
+              {top.map((story) => (
                 <SideStory key={story.id} story={story} />
               ))}
             </aside>
@@ -71,10 +75,10 @@ export default async function HomePage() {
         </>
       )}
 
-      {current.length > 0 && (
+      {latest.length > 0 && (
         <section>
           <SectionHead title="Latest news" href="/latest" />
-          <StoryGrid stories={current.slice(0, 12)} />
+          <StoryGrid stories={latest.slice(0, 12)} />
         </section>
       )}
 

@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 
 import { joinWithInvite, requireWriter, signIn, signOut } from '@/lib/writer-auth'
 import { getWriteClient } from '@/sanity/lib/writeClient'
+import { STORY_TYPES } from '@/lib/site/config'
 
 export type FormState = { error?: string }
 
@@ -122,6 +123,7 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
   const image = formData.get('image')
   const categoryIds = formData.getAll('categories').map(String)
   const region = String(formData.get('region') ?? '')
+  const storyType = String(formData.get('storyType') ?? 'news')
 
   // Match what the chief editor needs before publishing (see newsItemType validation)
   if (!title) return { error: 'Add a headline.' }
@@ -130,6 +132,7 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
   if (excerpt.length > 600) return { error: 'Keep the summary under 600 characters.' }
   if (categoryIds.length === 0) return { error: 'Choose at least one section.' }
   if (!['zimbabwe', 'africa', 'world'].includes(region)) return { error: 'Choose the region the story is from.' }
+  if (!(storyType in STORY_TYPES)) return { error: 'Choose the story type.' }
   if (!content) return { error: 'Write the story before submitting.' }
 
   const existing = id ? await findOwnDraft(id, writer._id) : null
@@ -161,6 +164,7 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
     content: toBlocks(content),
     readTime: readTime(content),
     region,
+    storyType,
     categories: validCategories.map((ref) => ({ _type: 'reference', _ref: ref, _key: key() })),
     submittedBy: { _type: 'reference', _ref: writer._id },
     // Every submission goes (back) into the chief editor's approval queue
