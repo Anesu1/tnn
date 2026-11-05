@@ -63,3 +63,16 @@ article.article > .type-label:first-child { margin-left: 0; }
 
 /* The byline row now carries a time as well as a date */
 .byline time { white-space: nowrap; }
+
+/* Phone menu: short labels in a five-column grid, so the ten links take two rows, not three.
+   Overrides the reference's four-column grid at the same breakpoint. */
+.nav-short { display: none; }
+@media (max-width: 600px) {
+  .nav { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .nav-full { display: none; }
+  .nav-short { display: inline; }
+}
+/* The narrowest phones: slightly smaller text so neighbouring labels don't touch */
+@media (max-width: 360px) {
+  .nav a, .nav a:first-child { font-size: 9px; letter-spacing: 0; }
+}

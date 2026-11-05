@@ -12,13 +12,14 @@ export const GTM_ID = "GTM-K8DR5L5R"
 
 // Public section pages (/category/<slug>) and the Sanity category keys each one covers.
 // The six sections match the fixed list in sanity/schemaTypes/categoryType.ts.
+// `nav` is the menu label; `short` is used on phones, where the menu is a tight grid.
 export const SECTIONS = [
-  { slug: "politics", title: "Politics & Governance", nav: "POLITICS", keys: ["politics-governance"] },
-  { slug: "business", title: "Business & Economy", nav: "BUSINESS", keys: ["business-economy"] },
-  { slug: "health-education", title: "Health & Education", nav: "HEALTH & EDUCATION", keys: ["health-education"] },
-  { slug: "community", title: "Community & Society", nav: "COMMUNITY", keys: ["community-society"] },
-  { slug: "sport-culture", title: "Sports & Culture", nav: "SPORT & CULTURE", keys: ["sports-culture"] },
-  { slug: "entertainment", title: "Entertainment & Lifestyle", nav: "ENTERTAINMENT", keys: ["entertainment-lifestyle"] },
+  { slug: "politics", title: "Politics & Governance", nav: "POLITICS", short: "POLITICS", keys: ["politics-governance"] },
+  { slug: "business", title: "Business & Economy", nav: "BUSINESS", short: "BUSINESS", keys: ["business-economy"] },
+  { slug: "health-education", title: "Health & Education", nav: "HEALTH & EDUCATION", short: "HEALTH", keys: ["health-education"] },
+  { slug: "community", title: "Community & Society", nav: "COMMUNITY", short: "COMMUNITY", keys: ["community-society"] },
+  { slug: "sport-culture", title: "Sports & Culture", nav: "SPORT & CULTURE", short: "SPORT", keys: ["sports-culture"] },
+  { slug: "entertainment", title: "Entertainment & Lifestyle", nav: "ENTERTAINMENT", short: "LIFESTYLE", keys: ["entertainment-lifestyle"] },
 ] as const
 
 export type SectionSlug = (typeof SECTIONS)[number]["slug"]

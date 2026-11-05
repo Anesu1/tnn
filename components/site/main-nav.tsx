@@ -4,10 +4,11 @@ import { usePathname } from "next/navigation"
 import { SECTIONS } from "@/lib/site/config"
 import { Icon } from "./icons"
 
-const MAIN_NAV = [
+// `short` labels replace the full ones on phones (see .nav-short in editorial.css)
+const MAIN_NAV: { href: string; label: string; short?: string }[] = [
   { href: "/latest", label: "LATEST" },
-  ...SECTIONS.map((section) => ({ href: `/category/${section.slug}`, label: section.nav })),
-  { href: "/watch", label: "WATCH TNN" },
+  ...SECTIONS.map((section) => ({ href: `/category/${section.slug}`, label: section.nav, short: section.short })),
+  { href: "/watch", label: "WATCH TNN", short: "WATCH" },
   { href: "/archive", label: "ARCHIVE" },
 ]
 
@@ -24,7 +25,14 @@ export function MainNav() {
           href={item.href}
           aria-current={pathname === item.href && MARKS_CURRENT.has(item.href) ? "page" : undefined}
         >
-          {item.label}
+          {item.short && item.short !== item.label ? (
+            <>
+              <span className="nav-full">{item.label}</span>
+              <span className="nav-short">{item.short}</span>
+            </>
+          ) : (
+            item.label
+          )}
         </a>
       ))}
       <a className="search-link" href="/search">
