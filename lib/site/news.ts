@@ -73,8 +73,11 @@ type RawStory = {
   breakingUntil?: string
 }
 
-// Only published stories with a slug and date reach the public site (the client uses the published perspective)
-const PUBLIC_STORY = `_type == "newsItem" && defined(slug.current) && defined(publishedAt)`
+// Only published stories with a slug and date reach the public site (the client uses the published
+// perspective). A story whose publish time is still in the future is scheduled: it stays hidden
+// everywhere until then, and pages pick it up within a minute or two of that time.
+export const LIVE_STORY = `defined(slug.current) && defined(publishedAt) && dateTime(publishedAt) <= dateTime(now())`
+const PUBLIC_STORY = `_type == "newsItem" && ${LIVE_STORY}`
 
 const STORY_FIELDS = `
   _id, _updatedAt, title, "slug": slug.current, "summary": excerpt, publishedAt, region, archived,

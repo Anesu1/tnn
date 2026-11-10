@@ -1,5 +1,5 @@
 import type {StructureResolver} from 'sanity/structure'
-import {ArchiveIcon, BoltIcon, ClockIcon, HomeIcon, StarIcon, UndoIcon, UserIcon, UsersIcon, WarningOutlineIcon} from '@sanity/icons'
+import {ArchiveIcon, BoltIcon, CalendarIcon, ClockIcon, HomeIcon, StarIcon, UndoIcon, UserIcon, UsersIcon, WarningOutlineIcon} from '@sanity/icons'
 
 // Published stories missing what newsItemType now requires before publishing
 const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (
@@ -46,6 +46,16 @@ export const structure: StructureResolver = (S) =>
                     .defaultOrdering([{field: 'publishedAt', direction: 'desc'}]),
                 ),
             ]),
+        ),
+      // Published with a future time: hidden from the website until then
+      S.listItem()
+        .title('Scheduled')
+        .icon(CalendarIcon)
+        .child(
+          S.documentList()
+            .title('Scheduled to go live')
+            .filter('_type == "newsItem" && !(_id in path("drafts.**")) && dateTime(publishedAt) > dateTime(now())')
+            .defaultOrdering([{field: 'publishedAt', direction: 'asc'}]),
         ),
       S.divider(),
       // Drafts written by contributors that the chief editor still needs to publish

@@ -1,3 +1,7 @@
+// Every date and time in the Studio is shown and entered in Harare time, whatever the editor's
+// computer is set to, so a story scheduled for 06:00 goes out at 06:00 CAT.
+const HARARE_TIME = { displayTimeZone: "Africa/Harare", allowTimeZoneSwitch: false, timeStep: 5 }
+
 export default {
     name: "newsItem",
     title: "News",
@@ -24,12 +28,14 @@ export default {
             title: "Published at",
             type: "datetime",
             description:
-                "Set automatically the first time you publish. Only change it to correct a wrong date, never to move a story up the homepage (use Homepage placement for that).",
+                "Harare time. Leave empty to publish now. To schedule, set a future time and click Publish: the story stays off the website until then and appears within a couple of minutes of that time. Never change it to move a story up the homepage (use Homepage placement).",
+            options: HARARE_TIME,
         },
         {
             name: "lastUpdated",
             title: "Last substantial update",
             type: "datetime",
+            options: HARARE_TIME,
             description:
                 "Set this when the story gains important new information. Readers see “Updated …” and Google sees the change. Leave it alone for typo fixes.",
             validation: (Rule: any) =>
@@ -167,6 +173,7 @@ export default {
             name: "featuredUntil",
             title: "Featured until",
             type: "datetime",
+            options: HARARE_TIME,
             fieldset: "homepage",
             description: "When the story leaves its lead or top position. Leave empty to keep it there until you change it.",
             hidden: ({ document }: any) => !document?.placement || document.placement === "normal",
@@ -183,6 +190,7 @@ export default {
             name: "breakingUntil",
             title: "Breaking until",
             type: "datetime",
+            options: HARARE_TIME,
             fieldset: "homepage",
             description: "When the BREAKING label comes off. Usually a few hours to a day after publishing.",
             hidden: ({ document }: any) => !document?.breaking,
@@ -318,11 +326,16 @@ export default {
             placement: "placement",
             breaking: "breaking",
             breakingUntil: "breakingUntil",
+            publishedAt: "publishedAt",
             media: "mainImage",
         },
         prepare(selection: Record<string, any>) {
-            const { author, writer, reviewStatus, placement, breaking, breakingUntil, ...rest } = selection
+            const { author, writer, reviewStatus, placement, breaking, breakingUntil, publishedAt, ...rest } = selection
+            const scheduled =
+                publishedAt > new Date().toISOString() &&
+                `Scheduled for ${new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Harare", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(publishedAt))} CAT`
             const parts = [
+                scheduled,
                 breaking && breakingUntil > new Date().toISOString() && "BREAKING",
                 placement === "lead" && "Lead story",
                 placement === "top" && "Top story",

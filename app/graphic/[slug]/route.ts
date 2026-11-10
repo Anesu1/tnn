@@ -1,5 +1,6 @@
 import { client } from "@/sanity/lib/client"
 import { CATEGORY_LABELS, REGIONS } from "@/lib/site/config"
+import { LIVE_STORY } from "@/lib/site/news"
 
 // TNN editorial graphic for stories without a photo, in the style of the reference
 // design's editorial graphics: dark panel, red edge, place, headline and topic.
@@ -35,7 +36,7 @@ function wrap(text: string, maxChars: number, maxLines: number) {
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const story = await client.fetch<{ title: string; region?: string; categoryKey?: string; categoryTitle?: string } | null>(
-    `*[_type == "newsItem" && slug.current == $slug][0]{title, region, "categoryKey": categories[0]->key, "categoryTitle": categories[0]->title}`,
+    `*[_type == "newsItem" && slug.current == $slug && ${LIVE_STORY}][0]{title, region, "categoryKey": categories[0]->key, "categoryTitle": categories[0]->title}`,
     { slug },
   )
   if (!story) return new Response("Not found", { status: 404 })

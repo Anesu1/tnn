@@ -11,6 +11,7 @@ type StoryDoc = {
   image?: string
   reviewStatus?: string
   editorNote?: string
+  publishedAt?: string
   _updatedAt: string
 }
 
@@ -33,13 +34,23 @@ function groupStories(docs: StoryDoc[]): Story[] {
       story.editorNote = doc.editorNote
     } else {
       story.published = true
+      story.publishedAt = doc.publishedAt
     }
     byId.set(baseId, story)
   }
   return [...byId.values()].sort((a, b) => b._updatedAt.localeCompare(a._updatedAt))
 }
 
-const dateFormat = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" })
+const dateFormat = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Harare" })
+const scheduleFormat = new Intl.DateTimeFormat("en-GB", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+  timeZone: "Africa/Harare",
+})
 
 export default async function WriterDashboard({
   searchParams,
@@ -51,7 +62,7 @@ export default async function WriterDashboard({
 
   const docs = await getWriteClient().fetch<StoryDoc[]>(
     `*[_type == "newsItem" && submittedBy._ref == $writerId]{
-      _id, title, "slug": slug.current, "image": mainImage.asset->url, reviewStatus, editorNote, _updatedAt
+      _id, title, "slug": slug.current, "image": mainImage.asset->url, reviewStatus, editorNote, publishedAt, _updatedAt
     }`,
     { writerId: writer._id },
   )
@@ -59,6 +70,7 @@ export default async function WriterDashboard({
   const sentBack = stories.filter((s) => !s.published && s.sentBack)
   const awaiting = stories.filter((s) => !s.published && !s.sentBack)
   const published = stories.filter((s) => s.published)
+  const now = new Date().toISOString()
 
   return (
     <>
@@ -146,26 +158,34 @@ export default async function WriterDashboard({
       {published.length === 0 ? (
         <div className="empty">None of your stories have been published yet.</div>
       ) : (
-        published.map((story) => (
-          <div className="story" key={story.baseId}>
-            <div className="thumb">{story.image && <img src={`${story.image}?w=200&h=125&fit=crop`} alt="" />}</div>
-            <div>
-              <span className="label">Live</span>
-              <span className="status live">Published</span>
-              <h3>{story.title || "Untitled story"}</h3>
-              <span className="meta">
-                {story.pending ? "The editor is making changes" : `Updated ${dateFormat.format(new Date(story._updatedAt))}`}
-              </span>
+        published.map((story) => {
+          // Published with a future time: the editor has scheduled it
+          const scheduled = !!story.publishedAt && story.publishedAt > now
+          return (
+            <div className="story" key={story.baseId}>
+              <div className="thumb">{story.image && <img src={`${story.image}?w=200&h=125&fit=crop`} alt="" />}</div>
+              <div>
+                <span className="label">{scheduled ? "Scheduled" : "Live"}</span>
+                <span className={scheduled ? "status pending" : "status live"}>{scheduled ? "Scheduled" : "Published"}</span>
+                <h3>{story.title || "Untitled story"}</h3>
+                <span className="meta">
+                  {scheduled
+                    ? `Goes live ${scheduleFormat.format(new Date(story.publishedAt!))} CAT`
+                    : story.pending
+                      ? "The editor is making changes"
+                      : `Updated ${dateFormat.format(new Date(story._updatedAt))}`}
+                </span>
+              </div>
+              <div className="story-actions">
+                {story.slug && !scheduled && (
+                  <Link href={`/news/${story.slug}`} target="_blank">
+                    View on site
+                  </Link>
+                )}
+              </div>
             </div>
-            <div className="story-actions">
-              {story.slug && (
-                <Link href={`/article/${story.slug}`} target="_blank">
-                  View on site
-                </Link>
-              )}
-            </div>
-          </div>
-        ))
+          )
+        })
       )}
     </>
   )

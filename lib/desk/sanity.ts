@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { storyUrl } from '@/lib/site/news'
+import { LIVE_STORY, storyUrl } from '@/lib/site/news'
 import { client } from '@/sanity/lib/client'
 import { addDays } from './config'
 
@@ -15,7 +15,7 @@ export async function webStories(from: string, to: string): Promise<WebStory[]> 
   const rows = await client.withConfig({ useCdn: false }).fetch<
     { _id: string; title?: string; slug?: string; publishedAt: string; author?: string }[]
   >(
-    `*[_type == "newsItem" && defined(slug.current) && defined(publishedAt)
+    `*[_type == "newsItem" && ${LIVE_STORY}
        && dateTime(publishedAt) >= dateTime($from) && dateTime(publishedAt) < dateTime($to)]
      | order(publishedAt desc){ _id, title, "slug": slug.current, publishedAt, "author": author->name }`,
     { from: startOfDay(from), to: startOfDay(addDays(to, 1)) },

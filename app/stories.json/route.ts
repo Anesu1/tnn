@@ -1,5 +1,5 @@
 import { CATEGORY_LABELS, formatDate, REGIONS } from "@/lib/site/config"
-import { storyUrl } from "@/lib/site/news"
+import { LIVE_STORY, storyUrl } from "@/lib/site/news"
 import { client } from "@/sanity/lib/client"
 
 // Search index for /search, in the same shape as the reference design's stories.json
@@ -21,7 +21,7 @@ type Row = {
 
 export async function GET() {
   const rows = await client.fetch<Row[]>(
-    `*[_type == "newsItem" && defined(slug.current) && defined(publishedAt)] | order(publishedAt desc){
+    `*[_type == "newsItem" && ${LIVE_STORY}] | order(publishedAt desc){
       title, "slug": slug.current, "summary": excerpt, "body": pt::text(content), "topics": tags[]->title,
       "categoryKey": categories[0]->key, "categoryTitle": categories[0]->title, region, publishedAt, archived,
       "image": mainImage{alt, "url": asset->url, "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height}

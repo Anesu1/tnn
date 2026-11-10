@@ -76,3 +76,8 @@ article.article > .type-label:first-child { margin-left: 0; }
 @media (max-width: 360px) {
   .nav a, .nav a:first-child { font-size: 9px; letter-spacing: 0; }
 }
+
+/* Author profile: photo beside the name on wider screens, social links as a plain list */
+.author-profile .author-photo { width: 160px; height: 160px; object-fit: cover; border-radius: 50%; margin: 0 0 18px; background: #dfe6de; }
+.author-links { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 0; margin: 18px 0; font-size: 14px; }
+.author-links a { display: inline-flex; align-items: center; min-height: 44px; font-weight: bold; }
