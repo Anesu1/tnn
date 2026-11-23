@@ -66,6 +66,16 @@ export default {
             options: {
                 hotspot: true,
             },
+            // A warning, not an error: editors can still publish. Google Discover and Top Stories
+            // prefer images at least 1200px wide, and smaller ones can keep a story out of Discover.
+            // The asset id carries the size, e.g. "image-<hash>-515x596-jpg".
+            validation: (Rule: any) =>
+                Rule.custom((image: { asset?: { _ref?: string } } | undefined) => {
+                    const width = Number(image?.asset?._ref?.match(/-(\d+)x\d+-[a-z]+$/)?.[1])
+                    return width && width < 1200
+                        ? `This photo is ${width}px wide. Use one at least 1200px wide so the story can appear with a large image in Google Discover and Top Stories.`
+                        : true
+                }).warning(),
             fields: [
                 {
                     name: "alt",
