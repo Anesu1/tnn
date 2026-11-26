@@ -7,6 +7,8 @@ import authorType from "./authorType";
 import tagType from "./tagType";
 import liveStreamType from "./liveStreamType";
 import writerType from "./writerType";
+import { programmeType } from "./programmeType";
+import { episodeType } from "./episodeType";
 
 
 
@@ -19,6 +21,8 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     tagType,
     liveStreamType,
     writerType,
+    programmeType,
+    episodeType,
 
   ],
 };

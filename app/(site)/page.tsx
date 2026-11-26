@@ -2,8 +2,10 @@ import type { Metadata } from "next"
 
 import { FollowBand } from "@/components/site/chrome"
 import { BreakingBand, FeatureStory, SectionHead, SideStory, StoryGrid, VideoGrid } from "@/components/site/stories"
+import { EpisodeGrid } from "@/components/site/watch"
 import { formatDate, SITE_NAME, SITE_SEARCH_DESCRIPTION, SITE_URL, WHATSAPP_URL, YOUTUBE_URL } from "@/lib/site/config"
 import { getStories, homepageStories } from "@/lib/site/news"
+import { getLatestEpisodes } from "@/lib/site/watch"
 
 export const revalidate = 60
 
@@ -52,7 +54,7 @@ const WEBSITE_LD = {
 }
 
 export default async function HomePage() {
-  const stories = await getStories("", 80)
+  const [stories, episodes] = await Promise.all([getStories("", 80), getLatestEpisodes(3)])
   const current = stories.filter((story) => !story.archived)
   const archived = stories.filter((story) => story.archived)
   // Placement is the editors' choice in the Studio, separate from publish time
@@ -117,7 +119,7 @@ export default async function HomePage() {
 
       <section>
         <SectionHead title="Watch TNN" href="/watch" linkText="All programmes" />
-        <VideoGrid limit={3} />
+        {episodes.length > 0 ? <EpisodeGrid episodes={episodes} /> : <VideoGrid limit={3} />}
       </section>
 
       <FollowBand />

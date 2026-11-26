@@ -4,6 +4,7 @@ import { requireDeskUser } from "@/lib/desk/auth"
 import { formatStamp, ROLE_LABELS, type Role } from "@/lib/desk/config"
 import { db } from "@/lib/desk/db"
 import { canSendEmail, emailEnabled } from "@/lib/desk/notify"
+import { NEWSLETTER, newsletterEnabled, subscriberCounts } from "@/lib/newsletter"
 
 type Account = { id: string; name: string; email: string; role: Role; disabled: boolean; totp_enabled: boolean; must_change_password: boolean; last_sign_in: Date | null }
 
@@ -13,6 +14,7 @@ export default async function Accounts() {
     select u.id, u.name, u.email, u.role, u.disabled, u.totp_enabled, u.must_change_password,
       (select max(at) from audit_log a where a.user_id = u.id and a.action = 'signed_in') as last_sign_in
     from users u order by u.role, u.name`
+  const readers = await subscriberCounts()
 
   return (
     <>
@@ -116,6 +118,18 @@ export default async function Accounts() {
               <SubmitButton>Create account</SubmitButton>
             </FormFooter>
           </ActionForm>
+
+          <div className="section-head">
+            <h2>Email briefing</h2>
+          </div>
+          <p>
+            <strong>{readers.confirmed}</strong> confirmed {readers.confirmed === 1 ? "reader" : "readers"} · {readers.pending} waiting to confirm ·{" "}
+            {readers.unsubscribed} unsubscribed
+          </p>
+          <p className="meta">
+            The weekly briefing is {newsletterEnabled() ? "on" : "off"}. It goes out on Fridays from 0{NEWSLETTER.hour}:00 Harare time
+            {readers.lastSent ? `; last sent ${formatStamp(readers.lastSent)}` : ""}. Readers sign up at /newsletter.
+          </p>
         </section>
       </div>
     </>

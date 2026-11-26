@@ -1,7 +1,8 @@
 import { requireDeskUser } from "@/lib/desk/auth"
 import { addDays, todayISO, weekStart } from "@/lib/desk/config"
-import { inviteEmail, renderEmail, type EmailContent } from "@/lib/desk/email"
+import { inviteEmail, renderEmail, type EmailAudience, type EmailContent } from "@/lib/desk/email"
 import { digestEmail, emailEnabled, reportEmail } from "@/lib/desk/notify"
+import { briefingContent } from "@/lib/newsletter"
 
 // What each Desk email looks like. The morning summary uses today's real data; the others
 // show the layout with an example.
@@ -10,7 +11,10 @@ export default async function EmailPreview({ searchParams }: { searchParams: Pro
   const phone = (await searchParams).width === "phone"
   const today = todayISO()
 
-  const samples: { name: string; who: string; subject: string; content: EmailContent }[] = [
+  const briefing = await briefingContent()
+  const reader: EmailAudience = { audience: "public", unsubscribeUrl: "#", reason: "You’re receiving this because you signed up for the TNN email briefing at thenarrativenetwork.org." }
+
+  const samples: { name: string; who: string; subject: string; content: EmailContent; to?: EmailAudience }[] = [
     {
       name: "Invitation",
       who: "New or reset accounts, when the CEO adds or resets them",
@@ -51,6 +55,17 @@ export default async function EmailPreview({ searchParams }: { searchParams: Pro
         action: { label: "Answer it on the Desk", href: "/desk/decisions" },
       },
     },
+    ...(briefing
+      ? [
+          {
+            name: "Weekly email briefing",
+            who: "Newsletter readers, Fridays from 07:00 (uses this week’s real stories)",
+            subject: "This week from The Narrative Network",
+            content: briefing.content,
+            to: reader,
+          },
+        ]
+      : []),
   ]
 
   return (
@@ -79,10 +94,10 @@ export default async function EmailPreview({ searchParams }: { searchParams: Pro
             <h2>{sample.name}</h2>
             <span className="meta">{sample.who}</span>
           </div>
-          <p className="meta">Subject: TNN Desk: {sample.subject}</p>
+          <p className="meta">Subject: {sample.to ? "" : "TNN Desk: "}{sample.subject}</p>
           <iframe
             title={`${sample.name} email`}
-            srcDoc={renderEmail(sample.content).html}
+            srcDoc={renderEmail(sample.content, sample.to).html}
             sandbox=""
             style={{ display: "block", width: phone ? 375 : "100%", maxWidth: "100%", height: 760, border: "1px solid var(--line)", background: "#fff", marginTop: 10 }}
           />

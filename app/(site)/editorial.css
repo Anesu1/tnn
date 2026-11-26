@@ -81,3 +81,18 @@ article.article > .type-label:first-child { margin-left: 0; }
 .author-profile .author-photo { width: 160px; height: 160px; object-fit: cover; border-radius: 50%; margin: 0 0 18px; background: #dfe6de; }
 .author-links { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 0; margin: 18px 0; font-size: 14px; }
 .author-links a { display: inline-flex; align-items: center; min-height: 44px; font-weight: bold; }
+
+/* Watch TNN: programme intro and the click-to-play video */
+.programme-about { max-width: 760px; color: var(--muted); margin: -8px 0 0; }
+.programme-facts { margin: -10px 0 18px; }
+.video-play { width: 100%; border: 0; cursor: pointer; }
+.video-play .meta { color: #c4cfc7; font: 12px Arial, sans-serif; }
+.video-play:hover .play, .video-play:focus-visible .play { border-color: #fff; background: rgba(255, 255, 255, 0.08); }
+.video-frame { position: relative; aspect-ratio: 16 / 9; background: #000; }
+.video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.programme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; margin: 24px 0; }
+.programme-card { display: flex; flex-direction: column; gap: 10px; padding: 22px; border: 1px solid var(--line); border-top: 3px solid var(--green); text-decoration: none; min-height: 150px; }
+.programme-card h3 { margin: 0; font-size: 22px; }
+.programme-card p { margin: 0; font-size: 15px; color: var(--muted); line-height: 1.55; }
+.programme-card .meta { margin-top: auto; }
+.programme-card:hover h3 { color: var(--red); }

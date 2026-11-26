@@ -163,6 +163,26 @@ create table if not exists audit_log (
 create index if not exists audit_entity on audit_log(entity, entity_id);
 create index if not exists audit_at on audit_log(at desc);
 
+-- Newsletter readers. Double opt-in: an email counts only once confirmed. The token is in every
+-- email's confirm and unsubscribe links (sent to that address only).
+create table if not exists subscribers (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique,
+  token text not null unique,
+  created_at timestamptz not null default now(),
+  confirmed_at timestamptz,
+  unsubscribed_at timestamptz,
+  confirmation_sent_at timestamptz
+);
+
+-- One row per newsletter sent (the key is the ISO week, so each week goes out once)
+create table if not exists newsletter_sends (
+  key text primary key,
+  sent_at timestamptz not null default now(),
+  recipients int not null default 0,
+  stories int not null default 0
+);
+
 -- Reminder emails already sent, so each one goes out once
 create table if not exists reminders_sent (
   key text primary key,

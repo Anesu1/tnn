@@ -24,6 +24,9 @@ const SUB_NAV = [
   { href: "/region/zimbabwe", label: "Zimbabwe" },
   { href: "/region/africa", label: "Africa" },
   { href: "/region/world", label: "World" },
+  { href: "/investigations", label: "Investigations" },
+  { href: "/interviews", label: "Interviews" },
+  { href: "/opinion", label: "Opinion" },
   { href: "/about", label: "About" },
   { href: "/partnerships", label: "Advertise & partner" },
   { href: "/contact", label: "Contact" },
@@ -115,7 +118,7 @@ export function FollowBand() {
     <section className="follow-band">
       <div>
         <h2>Stay with the story.</h2>
-        <p>Follow TNN on WhatsApp for updates, or register your interest in our email briefing.</p>
+        <p>Follow TNN on WhatsApp for updates, or get the week’s stories in our free Friday email briefing.</p>
       </div>
       <div className="actions">
         <a className="button" data-event="follow_whatsapp" href={WHATSAPP_URL} target="_blank" rel="noopener">

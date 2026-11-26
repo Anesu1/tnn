@@ -1,5 +1,5 @@
 import type {StructureResolver} from 'sanity/structure'
-import {ArchiveIcon, BoltIcon, CalendarIcon, ClockIcon, HomeIcon, StarIcon, UndoIcon, UserIcon, UsersIcon, WarningOutlineIcon} from '@sanity/icons'
+import {ArchiveIcon, BoltIcon, CalendarIcon, ClockIcon, HomeIcon, PlayIcon, StarIcon, UndoIcon, UserIcon, UsersIcon, WarningOutlineIcon} from '@sanity/icons'
 
 // Published stories missing what newsItemType now requires before publishing
 const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (
@@ -117,5 +117,18 @@ export const structure: StructureResolver = (S) =>
                 .child(S.documentTypeList('writer').title('Old writer records (read-only)')),
             ]),
         ),
-      ...S.documentTypeListItems().filter((item) => !['author', 'writer'].includes(item.getId() ?? '')),
+      // Video programmes and their episodes (pages under /watch)
+      S.listItem()
+        .title('Watch TNN')
+        .icon(PlayIcon)
+        .child(
+          S.list()
+            .title('Watch TNN')
+            .items([
+              S.documentTypeListItem('episode').title('Episodes'),
+              S.documentTypeListItem('programme').title('Programmes'),
+            ]),
+        ),
+      S.divider(),
+      ...S.documentTypeListItems().filter((item) => !['author', 'writer', 'programme', 'episode'].includes(item.getId() ?? '')),
     ])

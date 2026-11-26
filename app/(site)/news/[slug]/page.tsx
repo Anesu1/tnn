@@ -5,7 +5,9 @@ import { FollowBand } from "@/components/site/chrome"
 import { SectionHead, StoryGrid, StoryImg } from "@/components/site/stories"
 import { formatDateTime, SECTIONS, SITE_NAME, SITE_URL, STORY_TYPES } from "@/lib/site/config"
 import { pageMetadata } from "@/lib/site/metadata"
-import { getStories, getStoriesWith, getStory, imageSources, readTimeFor, storyUrl, type FullStory } from "@/lib/site/news"
+import { getStories, getStory, imageSources, readTimeFor, relatedStories, storyUrl, type FullStory } from "@/lib/site/news"
+import { episodesForStory } from "@/lib/site/watch"
+import { EpisodeGrid } from "@/components/site/watch"
 import { Icon } from "@/components/site/icons"
 
 export const revalidate = 60
@@ -55,12 +57,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const isNewsroom = !story.author || story.author.slug === "tnn"
   const author = story.author ?? { name: "TNN Newsroom", slug: "tnn" }
 
-  // Related: same section first, topped up with the latest stories
-  const sameSection = section
-    ? await getStoriesWith("categories[0]->key in $keys && _id != $id", { keys: [...section.keys], id: story.id }, 3)
-    : []
-  const latest = sameSection.length >= 3 ? [] : await getStoriesWith("_id != $id", { id: story.id }, 6)
-  const related = [...sameSection, ...latest.filter((s) => !sameSection.some((r) => r.id === s.id))].slice(0, 3)
+  // Related reporting (see relatedStories) and any video episode that lists this story
+  const [related, episodes] = await Promise.all([relatedStories(story), episodesForStory(story.id)])
 
   const articleLd = {
     "@context": "https://schema.org",
@@ -168,6 +166,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <a href="/corrections">corrections policy</a>.
         </p>
       </article>
+      {episodes.length > 0 && (
+        <section>
+          <SectionHead title="Watch: on this story" href="/watch" linkText="Watch TNN" />
+          <EpisodeGrid episodes={episodes} />
+        </section>
+      )}
       <FollowBand />
       {related.length > 0 && (
         <section>

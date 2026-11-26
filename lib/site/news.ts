@@ -22,6 +22,8 @@ export type Story = {
   regionTitle?: string
   archived: boolean
   categoryKey?: string
+  // Every section the story is filed under (the first is the main one)
+  categoryKeys: string[]
   categoryLabel?: string
   sectionSlug?: string
   author?: { name: string; slug?: string }
@@ -58,6 +60,7 @@ type RawStory = {
   region?: string
   archived?: boolean
   categoryKey?: string
+  categoryKeys?: string[]
   categoryTitle?: string
   author?: { name: string; slug?: string }
   image?: { url?: string; width?: number; height?: number; alt?: string; caption?: string }
@@ -85,7 +88,7 @@ const PUBLIC_STORY = `_type == "newsItem" && ${LIVE_STORY}`
 
 const STORY_FIELDS = `
   _id, _updatedAt, title, "slug": slug.current, "summary": excerpt, publishedAt, region, archived,
-  "categoryKey": categories[0]->key, "categoryTitle": categories[0]->title,
+  "categoryKey": categories[0]->key, "categoryKeys": categories[]->key, "categoryTitle": categories[0]->title,
   "author": author->{name, "slug": slug.current},
   "image": mainImage{alt, caption, "url": asset->url,
     "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height},
@@ -131,6 +134,7 @@ function toStory(raw: RawStory): Story {
     regionTitle: region?.title,
     archived: Boolean(raw.archived),
     categoryKey: raw.categoryKey,
+    categoryKeys: (raw.categoryKeys ?? []).filter(Boolean),
     categoryLabel,
     sectionSlug: sectionForCategoryKey(raw.categoryKey)?.slug,
     author: raw.author?.name ? raw.author : undefined,
@@ -229,4 +233,59 @@ export function homepageStories(stories: Story[], topCount = 3) {
     latest: stories.filter((s) => !shown.has(s.id)),
     breaking: stories.filter((s) => s.breaking),
   }
+}
+
+// Words in a headline that name something (people, places, organisations): capitalised or
+// all-caps words, not at the start of the headline and not common words
+const COMMON = new Set(["The", "This", "That", "With", "From", "Over", "After", "Before", "Into", "Their", "There", "What", "When", "Where", "Will", "Says", "Said", "News", "Amid", "About", "More", "Than", "Govt", "Government"])
+function names(text: string) {
+  return new Set(
+    text
+      .replace(/[’']s\b/g, "")
+      .split(/[^\p{L}\p{N}-]+/u)
+      .slice(1)
+      .filter((w) => w.length >= 4 && /^\p{Lu}/u.test(w) && !COMMON.has(w))
+      .map((w) => w.toLowerCase()),
+  )
+}
+
+// Significant ordinary words in a headline ("budget", "teachers"), for topic matching
+const STOP = new Set(["about", "after", "against", "amid", "before", "between", "could", "their", "there", "these", "those", "under", "where", "which", "while", "would", "says", "said", "over", "into", "from", "with", "more", "than", "what", "when", "will", "have", "been", "being", "still", "again"])
+function words(text: string) {
+  return new Set(
+    text
+      .toLowerCase()
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter((w) => w.length >= 5 && !STOP.has(w))
+      .map((w) => w.replace(/s$/, "")),
+  )
+}
+
+// Related stories for an article. A story counts as related only if it shares a topic with
+// this one: a tag, a name or place in the headline, or significant headline words. Those come
+// first (most in common first); then the same section, newest first; then the newest overall.
+export async function relatedStories(story: Story, count = 3) {
+  const candidates = (await getStories("", 150)).filter((s) => s.id !== story.id && !s.archived)
+  const tags = new Set(story.tags)
+  const storyNames = names(story.title)
+  const storyWords = words(`${story.title} ${story.summary.slice(0, 160)}`)
+  const now = Date.now()
+  const topical = candidates
+    .map((s) => {
+      const shared =
+        4 * s.tags.filter((t) => tags.has(t)).length +
+        3 * Math.min(3, [...names(s.title)].filter((n) => storyNames.has(n)).length) +
+        Math.min(3, [...words(`${s.title} ${s.summary.slice(0, 160)}`)].filter((w) => storyWords.has(w)).length)
+      const bonus =
+        (s.categoryKeys.some((k) => story.categoryKeys.includes(k)) ? 1 : 0) +
+        (story.storyType !== "news" && s.storyType === story.storyType ? 0.5 : 0) +
+        Math.max(0, 1 - (now - new Date(s.publishedAt).getTime()) / (60 * 86_400_000))
+      return { s, shared, score: shared + bonus }
+    })
+    .filter((x) => x.shared >= 2)
+    .sort((a, b) => b.score - a.score)
+    .map((x) => x.s)
+  const sameSection = candidates.filter((s) => !topical.includes(s) && story.categoryKey && s.categoryKey === story.categoryKey)
+  const rest = candidates.filter((s) => !topical.includes(s) && !sameSection.includes(s))
+  return [...topical, ...sameSection, ...rest].slice(0, count)
 }
