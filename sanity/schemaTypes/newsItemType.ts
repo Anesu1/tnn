@@ -4,11 +4,20 @@ const HARARE_TIME = { displayTimeZone: "Africa/Harare", allowTimeZoneSwitch: fal
 
 export default {
     name: "newsItem",
-    title: "News",
+    title: "Story",
     type: "document",
+    // Tabs across the top of the story form, so editors see one job at a time
+    groups: [
+        { name: "story", title: "Story", default: true },
+        { name: "photo", title: "Photo" },
+        { name: "publishing", title: "Publishing" },
+        { name: "search", title: "Search & link" },
+        { name: "review", title: "Review", hidden: ({ document }: any) => !document?.submittedBy },
+    ],
     fields: [
         {
             name: "title",
+            group: "story",
             title: "Headline",
             type: "string",
             validation: (Rule: any) => [
@@ -18,16 +27,21 @@ export default {
         },
         {
             name: "slug",
-            title: "Slug",
+            group: "search",
+            title: "Web address",
+            description:
+                "The story's link: thenarrativenetwork.org/news/... Filled in from the headline when you publish. Don't change it once the story is live, or old links will stop working.",
             type: "slug",
             options: {
                 source: "title",
                 maxLength: 96,
             },
-            validation: (Rule: any) => Rule.required(),
+            // Not required here: Publish fills it in from the headline (sanity/actions/setPublishedAt.ts)
+            validation: (Rule: any) => Rule.custom((slug: { current?: string } | undefined) => !slug?.current || /^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug.current) ? true : "Use only lower-case letters, numbers and hyphens"),
         },
         {
             name: "publishedAt",
+            group: "publishing",
             title: "Published at",
             type: "datetime",
             description:
@@ -36,6 +50,7 @@ export default {
         },
         {
             name: "lastUpdated",
+            group: "publishing",
             title: "Last substantial update",
             type: "datetime",
             options: HARARE_TIME,
@@ -50,14 +65,16 @@ export default {
         },
         {
             name: "author",
-            title: "Author",
+            group: "story",
+            title: "Reporter (byline)",
             type: "reference",
             to: { type: "author" },
             validation: (Rule: any) => Rule.required().error("Add a byline before publishing"),
         },
         {
             name: "mainImage",
-            title: "Main image",
+            group: "photo",
+            title: "Main photo",
             type: "image",
             options: {
                 hotspot: true,
@@ -93,6 +110,7 @@ export default {
         },
         {
             name: "excerpt",
+            group: "story",
             title: "Summary",
             type: "text",
             rows: 3,
@@ -106,6 +124,7 @@ export default {
         },
         {
             name: "seoTitle",
+            group: "search",
             title: "Search headline (optional)",
             type: "string",
             fieldset: "search",
@@ -115,6 +134,7 @@ export default {
         },
         {
             name: "seoDescription",
+            group: "search",
             title: "Search description (optional)",
             type: "text",
             rows: 2,
@@ -125,6 +145,7 @@ export default {
         },
         {
             name: "categories",
+            group: "story",
             title: "Sections",
             type: "array",
             description: "The first section is the main one: it is shown on the story and decides where it appears",
@@ -133,6 +154,7 @@ export default {
         },
         {
             name: "region",
+            group: "story",
             title: "Region",
             type: "string",
             description: "Where the story is from. Decides the Zimbabwe, Africa and World pages it appears on.",
@@ -150,6 +172,7 @@ export default {
         {
             // Same list as STORY_TYPES in lib/site/config.ts and the writer portal
             name: "storyType",
+            group: "story",
             title: "Story type",
             type: "string",
             description: "Shown as a label on the story, so readers can tell reporting from analysis and opinion",
@@ -170,6 +193,7 @@ export default {
         },
         {
             name: "placement",
+            group: "publishing",
             title: "Homepage placement",
             type: "string",
             fieldset: "homepage",
@@ -188,6 +212,7 @@ export default {
         },
         {
             name: "topOrder",
+            group: "publishing",
             title: "Top story order",
             type: "number",
             fieldset: "homepage",
@@ -197,6 +222,7 @@ export default {
         },
         {
             name: "featuredUntil",
+            group: "publishing",
             title: "Featured until",
             type: "datetime",
             options: HARARE_TIME,
@@ -206,6 +232,7 @@ export default {
         },
         {
             name: "breaking",
+            group: "publishing",
             title: "Breaking news",
             type: "boolean",
             fieldset: "homepage",
@@ -214,6 +241,7 @@ export default {
         },
         {
             name: "breakingUntil",
+            group: "publishing",
             title: "Breaking until",
             type: "datetime",
             options: HARARE_TIME,
@@ -227,6 +255,7 @@ export default {
         },
         {
             name: "archived",
+            group: "publishing",
             title: "Archive story",
             type: "boolean",
             description:
@@ -235,6 +264,7 @@ export default {
         },
         {
             name: "tags",
+            group: "story",
             title: "Tags",
             type: "array",
             description:
@@ -244,6 +274,7 @@ export default {
         },
         {
             name: "content",
+            group: "story",
             title: "Story text",
             type: "array",
             validation: (Rule: any) => Rule.required().error("Add the story text before publishing"),
@@ -286,6 +317,7 @@ export default {
         },
         {
             name: "sources",
+            group: "story",
             title: "Sources & further reading",
             type: "array",
             description: "Listed at the end of the story",
@@ -307,6 +339,7 @@ export default {
         },
         {
             name: "submittedBy",
+            group: "review",
             title: "Submitted by",
             type: "reference",
             to: { type: "author" },
@@ -317,6 +350,7 @@ export default {
         // them (sanity/actions/setPublishedAt.ts) so editor notes never become public.
         {
             name: "reviewStatus",
+            group: "review",
             title: "Review",
             type: "string",
             fieldset: "review",
@@ -330,6 +364,7 @@ export default {
         },
         {
             name: "editorNote",
+            group: "review",
             title: "Note to the writer",
             type: "text",
             rows: 4,
@@ -347,9 +382,8 @@ export default {
     fieldsets: [
         {
             name: "search",
-            title: "Search engines",
-            description: "Optional. How the story appears in Google and Bing results.",
-            options: { collapsible: true, collapsed: true },
+            title: "How the story looks in Google and Bing (optional)",
+            description: "Leave these empty and the headline and summary are used.",
         },
         {
             name: "homepage",

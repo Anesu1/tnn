@@ -20,8 +20,9 @@ export default defineType({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
+      // Tags have no page of their own, so the slug is not needed or shown
+      hidden: true,
       options: { source: 'title', maxLength: 96 },
-      validation: (Rule) => Rule.required(),
     }),
   ],
   preview: {

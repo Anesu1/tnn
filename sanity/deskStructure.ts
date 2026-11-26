@@ -1,8 +1,31 @@
 import type {StructureResolver} from 'sanity/structure'
-import {BoltIcon, CalendarIcon, ClockIcon, DocumentsIcon, HomeIcon, ImageIcon, PlayIcon, StarIcon, TagIcon, TagsIcon, UndoIcon, UserIcon, UsersIcon, WarningOutlineIcon} from '@sanity/icons'
+import {
+  BoltIcon,
+  CalendarIcon,
+  ClockIcon,
+  DocumentsIcon,
+  HelpCircleIcon,
+  HomeIcon,
+  ImageIcon,
+  PlayIcon,
+  StarIcon,
+  TagIcon,
+  TagsIcon,
+  UndoIcon,
+  UserIcon,
+  UsersIcon,
+  WarningOutlineIcon,
+} from '@sanity/icons'
 
-// Published stories missing what newsItemType now requires before publishing
-const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (
+import {StartHere} from './components/StartHere'
+
+// The sidebar follows the day: guide, stories to review, what's scheduled and on the homepage,
+// things to fix, then people, video and everything else. Names are plain words, not field names.
+
+const PUBLISHED = `_type == "newsItem" && !(_id in path("drafts.**"))`
+
+// Published stories missing what the story form now requires before publishing
+const NEEDS_FIXING_FILTER = `${PUBLISHED} && (
   !defined(author) ||
   count(coalesce(categories, [])) == 0 ||
   !defined(region) ||
@@ -11,44 +34,36 @@ const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**"
 )`
 
 // Published stories with no photo, or one narrower than Google's 1200px for large previews
-const PHOTOS_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (!defined(mainImage.asset) || mainImage.asset->metadata.dimensions.width < 1200)`
+const PHOTOS_FILTER = `${PUBLISHED} && (!defined(mainImage.asset) || mainImage.asset->metadata.dimensions.width < 1200)`
+
+const NEWEST = [{field: 'publishedAt', direction: 'desc' as const}]
 
 // https://www.sanity.io/docs/structure-builder-cheat-sheet
 export const structure: StructureResolver = (S) =>
   S.list()
-    .title('Content')
+    .title('TNN Studio')
     .items([
-      // What the homepage shows above Latest news, as set in each story's Homepage placement
+      S.listItem().title('Start here').icon(HelpCircleIcon).child(S.component(StartHere).title('Start here')),
+      S.divider(),
+
+      // Drafts reporters sent from the writer portal, and drafts started here
       S.listItem()
-        .title('Homepage')
-        .icon(HomeIcon)
+        .title('To review')
+        .icon(ClockIcon)
         .child(
-          S.list()
-            .title('Homepage')
-            .items([
-              S.listItem()
-                .title('Lead and top stories')
-                .icon(StarIcon)
-                .child(
-                  S.documentList()
-                    .title('Lead and top stories')
-                    .filter(
-                      '_type == "newsItem" && !(_id in path("drafts.**")) && placement in ["lead", "top"] && (!defined(featuredUntil) || dateTime(featuredUntil) > dateTime(now()))',
-                    )
-                    .defaultOrdering([{field: 'placement', direction: 'asc'}, {field: 'topOrder', direction: 'asc'}]),
-                ),
-              S.listItem()
-                .title('Breaking now')
-                .icon(BoltIcon)
-                .child(
-                  S.documentList()
-                    .title('Breaking now')
-                    .filter(
-                      '_type == "newsItem" && !(_id in path("drafts.**")) && breaking == true && dateTime(breakingUntil) > dateTime(now())',
-                    )
-                    .defaultOrdering([{field: 'publishedAt', direction: 'desc'}]),
-                ),
-            ]),
+          S.documentList()
+            .title('To review: not yet published')
+            .filter('_type == "newsItem" && _id in path("drafts.**") && reviewStatus != "changesRequested"')
+            .defaultOrdering([{field: '_updatedAt', direction: 'desc'}]),
+        ),
+      S.listItem()
+        .title('Sent back to reporters')
+        .icon(UndoIcon)
+        .child(
+          S.documentList()
+            .title('Sent back: waiting for the reporter')
+            .filter('_type == "newsItem" && _id in path("drafts.**") && reviewStatus == "changesRequested"')
+            .defaultOrdering([{field: '_updatedAt', direction: 'desc'}]),
         ),
       // Published with a future time: hidden from the website until then
       S.listItem()
@@ -57,77 +72,91 @@ export const structure: StructureResolver = (S) =>
         .child(
           S.documentList()
             .title('Scheduled to go live')
-            .filter('_type == "newsItem" && !(_id in path("drafts.**")) && dateTime(publishedAt) > dateTime(now())')
+            .filter(`${PUBLISHED} && dateTime(publishedAt) > dateTime(now())`)
             .defaultOrdering([{field: 'publishedAt', direction: 'asc'}]),
         ),
-      S.divider(),
-      // Drafts written by contributors that the chief editor still needs to publish
-      // (includes unpublished edits to stories that are already live)
       S.listItem()
-        .title('Awaiting approval')
-        .icon(ClockIcon)
-        .child(
-          S.documentList()
-            .title('Awaiting approval')
-            .filter('_type == "newsItem" && _id in path("drafts.**") && reviewStatus != "changesRequested"')
-            .defaultOrdering([{field: '_updatedAt', direction: 'desc'}]),
-        ),
-      S.listItem()
-        .title('Sent back to writers')
-        .icon(UndoIcon)
-        .child(
-          S.documentList()
-            .title('Sent back to writers')
-            .filter('_type == "newsItem" && _id in path("drafts.**") && reviewStatus == "changesRequested"')
-            .defaultOrdering([{field: '_updatedAt', direction: 'desc'}]),
-        ),
-      S.listItem()
-        .title('Needs attention')
-        .icon(WarningOutlineIcon)
-        .child(
-          S.documentList()
-            .title('Missing byline, section, region, summary or photo description')
-            .filter(NEEDS_ATTENTION_FILTER)
-            .defaultOrdering([{field: 'publishedAt', direction: 'desc'}]),
-        ),
-      S.listItem()
-        .title('Photos to improve')
-        .icon(ImageIcon)
-        .child(
-          S.documentList()
-            .title('No photo, or narrower than 1200px')
-            .filter(PHOTOS_FILTER)
-            .defaultOrdering([{field: 'publishedAt', direction: 'desc'}]),
-        ),
-      S.divider(),
-      S.listItem()
-        .title('People')
-        .icon(UsersIcon)
+        .title('Homepage now')
+        .icon(HomeIcon)
         .child(
           S.list()
-            .title('People')
+            .title('Homepage now')
             .items([
               S.listItem()
-                .title('All authors')
-                .icon(UserIcon)
-                .child(S.documentTypeList('author').title('All authors')),
-              S.listItem()
-                .title('Writers with portal access')
-                .icon(UsersIcon)
+                .title('Lead and top stories')
+                .icon(StarIcon)
                 .child(
                   S.documentList()
-                    .title('Writers with portal access')
-                    .schemaType('author')
-                    .filter('_type == "author" && portalAccess == true'),
+                    .title('Lead and top stories')
+                    .filter(
+                      `${PUBLISHED} && placement in ["lead", "top"] && (!defined(featuredUntil) || dateTime(featuredUntil) > dateTime(now()))`,
+                    )
+                    .defaultOrdering([{field: 'placement', direction: 'asc'}, {field: 'topOrder', direction: 'asc'}]),
                 ),
               S.listItem()
-                .title('Profiles to complete')
+                .title('Breaking news')
+                .icon(BoltIcon)
+                .child(
+                  S.documentList()
+                    .title('Breaking news')
+                    .filter(`${PUBLISHED} && breaking == true && dateTime(breakingUntil) > dateTime(now())`)
+                    .defaultOrdering(NEWEST),
+                ),
+            ]),
+        ),
+      S.listItem()
+        .title('Needs fixing')
+        .icon(WarningOutlineIcon)
+        .child(
+          S.list()
+            .title('Needs fixing')
+            .items([
+              S.listItem()
+                .title('Missing details')
                 .icon(WarningOutlineIcon)
+                .child(
+                  S.documentList()
+                    .title('Missing reporter, section, region, summary or photo description')
+                    .filter(NEEDS_FIXING_FILTER)
+                    .defaultOrdering(NEWEST),
+                ),
+              S.listItem()
+                .title('Photos to improve')
+                .icon(ImageIcon)
+                .child(S.documentList().title('No photo, or narrower than 1200px').filter(PHOTOS_FILTER).defaultOrdering(NEWEST)),
+              S.listItem()
+                .title('Reporter profiles to complete')
+                .icon(UserIcon)
                 .child(
                   S.documentList()
                     .title('No bio, photo or role')
                     .schemaType('author')
                     .filter('_type == "author" && (!defined(bio) || !defined(photo.asset) || !defined(role) || role == "")'),
+                ),
+            ]),
+        ),
+      S.divider(),
+
+      S.listItem()
+        .title('All stories')
+        .icon(DocumentsIcon)
+        .child(S.documentTypeList('newsItem').title('All stories').defaultOrdering(NEWEST)),
+      S.listItem()
+        .title('Reporters')
+        .icon(UsersIcon)
+        .child(
+          S.list()
+            .title('Reporters')
+            .items([
+              S.listItem().title('All reporters').icon(UserIcon).child(S.documentTypeList('author').title('All reporters')),
+              S.listItem()
+                .title('Can use the writer portal')
+                .icon(UsersIcon)
+                .child(
+                  S.documentList()
+                    .title('Can use the writer portal')
+                    .schemaType('author')
+                    .filter('_type == "author" && portalAccess == true'),
                 ),
             ]),
         ),
@@ -144,10 +173,6 @@ export const structure: StructureResolver = (S) =>
             ]),
         ),
       S.divider(),
-      S.listItem()
-        .title('All stories')
-        .icon(DocumentsIcon)
-        .child(S.documentTypeList('newsItem').title('All stories').defaultOrdering([{field: 'publishedAt', direction: 'desc'}])),
-      S.documentTypeListItem('category').title('Sections').icon(TagIcon),
       S.documentTypeListItem('tag').title('Tags').icon(TagsIcon),
+      S.documentTypeListItem('category').title('Sections (fixed)').icon(TagIcon),
     ])

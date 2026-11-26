@@ -23,9 +23,9 @@ export default defineConfig({
   schema,
   plugins: [
     structureTool({ structure }),
-    // Vision is for querying with GROQ from inside the Studio
-    // https://www.sanity.io/docs/the-vision-plugin
-    visionTool({ defaultApiVersion: apiVersion }),
+    // Vision (GROQ queries) is a developer tool: only on a developer's own computer, not in the
+    // live Studio the newsroom uses
+    ...(process.env.NODE_ENV === 'development' ? [visionTool({ defaultApiVersion: apiVersion })] : []),
   ],
   document: {
     actions: (prev, context) => {
