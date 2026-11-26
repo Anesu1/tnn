@@ -15,6 +15,7 @@ const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**"
 // Published stories with no photo, or one narrower than Google's 1200px for large previews
 const PHOTOS_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (!defined(mainImage.asset) || mainImage.asset->metadata.dimensions.width < 1200)`
 
+// Fixed ids: the help assistant (components/HelpAssistant.tsx) links to these, e.g. /studio/structure/scheduled
 // https://www.sanity.io/docs/structure-builder-cheat-sheet
 export const structure: StructureResolver = (S) =>
   S.list()
@@ -23,6 +24,7 @@ export const structure: StructureResolver = (S) =>
       // What the homepage shows above Latest news, as set in each story's Homepage placement
       S.listItem()
         .title('Homepage')
+        .id('homepage')
         .icon(HomeIcon)
         .child(
           S.list()
@@ -30,6 +32,7 @@ export const structure: StructureResolver = (S) =>
             .items([
               S.listItem()
                 .title('Lead and top stories')
+                .id('lead')
                 .icon(StarIcon)
                 .child(
                   S.documentList()
@@ -41,6 +44,7 @@ export const structure: StructureResolver = (S) =>
                 ),
               S.listItem()
                 .title('Breaking now')
+                .id('breaking')
                 .icon(BoltIcon)
                 .child(
                   S.documentList()
@@ -55,6 +59,7 @@ export const structure: StructureResolver = (S) =>
       // Published with a future time: hidden from the website until then
       S.listItem()
         .title('Scheduled')
+        .id('scheduled')
         .icon(CalendarIcon)
         .child(
           S.documentList()
@@ -67,6 +72,7 @@ export const structure: StructureResolver = (S) =>
       // (includes unpublished edits to stories that are already live)
       S.listItem()
         .title('Awaiting approval')
+        .id('awaiting')
         .icon(ClockIcon)
         .child(
           S.documentList()
@@ -76,6 +82,7 @@ export const structure: StructureResolver = (S) =>
         ),
       S.listItem()
         .title('Sent back to writers')
+        .id('sentBack')
         .icon(UndoIcon)
         .child(
           S.documentList()
@@ -85,6 +92,7 @@ export const structure: StructureResolver = (S) =>
         ),
       S.listItem()
         .title('Needs attention')
+        .id('attention')
         .icon(WarningOutlineIcon)
         .child(
           S.documentList()
@@ -94,6 +102,7 @@ export const structure: StructureResolver = (S) =>
         ),
       S.listItem()
         .title('Photos to improve')
+        .id('photos')
         .icon(ImageIcon)
         .child(
           S.documentList()
@@ -104,6 +113,7 @@ export const structure: StructureResolver = (S) =>
       S.divider(),
       S.listItem()
         .title('People')
+        .id('people')
         .icon(UsersIcon)
         .child(
           S.list()
@@ -111,10 +121,12 @@ export const structure: StructureResolver = (S) =>
             .items([
               S.listItem()
                 .title('All authors')
+                .id('authors')
                 .icon(UserIcon)
                 .child(S.documentTypeList('author').title('All authors')),
               S.listItem()
                 .title('Writers with portal access')
+                .id('writers')
                 .icon(UsersIcon)
                 .child(
                   S.documentList()
@@ -124,6 +136,7 @@ export const structure: StructureResolver = (S) =>
                 ),
               S.listItem()
                 .title('Profiles to complete')
+                .id('profiles')
                 .icon(WarningOutlineIcon)
                 .child(
                   S.documentList()
@@ -136,22 +149,24 @@ export const structure: StructureResolver = (S) =>
       // Video programmes and their episodes (pages under /watch)
       S.listItem()
         .title('Watch TNN')
+        .id('watch')
         .icon(PlayIcon)
         .child(
           S.list()
             .title('Watch TNN')
             .items([
-              S.documentTypeListItem('episode').title('Episodes'),
+              S.documentTypeListItem('episode').id('episodes').title('Episodes'),
               S.documentTypeListItem('programme').title('Programmes'),
             ]),
         ),
       S.divider(),
       S.listItem()
         .title('All stories')
+        .id('stories')
         .icon(DocumentsIcon)
         .child(S.documentTypeList('newsItem').title('All stories').defaultOrdering([{field: 'publishedAt', direction: 'desc'}])),
-      S.documentTypeListItem('category').title('Sections').icon(TagIcon),
-      S.documentTypeListItem('tag').title('Tags').icon(TagsIcon),
+      S.documentTypeListItem('category').id('sections').title('Sections').icon(TagIcon),
+      S.documentTypeListItem('tag').id('tags').title('Tags').icon(TagsIcon),
       S.divider(),
-      S.listItem().title('How to use the Studio').icon(HelpCircleIcon).child(S.component(StartHere).title('How to use the Studio')),
+      S.listItem().id('help').title('How to use the Studio').icon(HelpCircleIcon).child(S.component(StartHere).title('How to use the Studio')),
     ])

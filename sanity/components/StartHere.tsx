@@ -1,5 +1,7 @@
 import {Box, Card, Heading, Stack, Text} from '@sanity/ui'
 
+import {HelpAssistant} from './HelpAssistant'
+
 // "How to use the Studio": a plain-language guide at the bottom of the Studio sidebar.
 // Keep it in step with deskStructure.ts and the field names in newsItemType.ts.
 
@@ -49,8 +51,9 @@ const SECTIONS: {title: string; steps: string[]}[] = [
 
 export function StartHere() {
   return (
-    <Box padding={4} style={{maxWidth: 720}}>
+    <Box padding={4} style={{maxWidth: 720, margin: '0 auto'}}>
       <Stack space={5}>
+        <HelpAssistant />
         <Stack space={3}>
           <Heading as="h1" size={3}>
             How to use the Studio

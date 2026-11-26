@@ -13,6 +13,8 @@ import { apiVersion, dataset, projectId } from './sanity/env'
 import { schema } from './sanity/schemaTypes'
 import { structure } from './sanity/deskStructure'
 import { withPublishedAt } from './sanity/actions/setPublishedAt'
+import { StartHere } from './sanity/components/StartHere'
+import { HelpCircleIcon } from '@sanity/icons'
 
 export default defineConfig({
   title: 'TNN Studio',
@@ -21,6 +23,8 @@ export default defineConfig({
   dataset,
   // Add and edit the content schema in the './sanity/schemaTypes' folder
   schema,
+  // "Help" in the top bar, next to Structure: ask how to do something, from anywhere in the Studio
+  tools: (prev) => [...prev, { name: 'help', title: 'Help', icon: HelpCircleIcon, component: StartHere }],
   plugins: [
     structureTool({ structure }),
     // Vision (GROQ queries) is a developer tool: only on a developer's own computer, not in the
