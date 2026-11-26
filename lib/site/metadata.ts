@@ -11,6 +11,12 @@ export function trimDescription(text: string, max = 160) {
 }
 
 // Page metadata in the reference's format: "<Title> | TNN", canonical URL and Open Graph tags
+// A listing page goes into Google only once it has enough of its own content. Pages with one
+// story and template text look like duplicates of each other ("Crawled - currently not indexed",
+// "Google chose different canonical"). Readers can still open them, and links are still followed.
+export const MIN_LISTING_ITEMS = 3
+export const THIN_PAGE = { robots: { index: false, follow: true } } as const
+
 export function pageMetadata({
   title,
   description,

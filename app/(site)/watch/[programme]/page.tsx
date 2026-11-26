@@ -4,7 +4,7 @@ import { FollowBand, PageTitle } from "@/components/site/chrome"
 import { Icon } from "@/components/site/icons"
 import { EpisodeGrid } from "@/components/site/watch"
 import { SITE_NAME, SITE_URL } from "@/lib/site/config"
-import { pageMetadata } from "@/lib/site/metadata"
+import { MIN_LISTING_ITEMS, pageMetadata, THIN_PAGE } from "@/lib/site/metadata"
 import { episodeUrl, getProgramme, getWatchPaths } from "@/lib/site/watch"
 
 export const revalidate = 60
@@ -18,13 +18,18 @@ export async function generateMetadata({ params }: { params: Promise<{ programme
   const data = await getProgramme((await params).programme)
   if (!data) return {}
   const { programme, episodes } = data
-  return pageMetadata({
+  // Indexed once it has a description or a few episodes; until then it repeats its episode page
+  const thin = !programme.description?.trim() && episodes.length < MIN_LISTING_ITEMS
+  return {
+    ...pageMetadata({
     title: `${programme.title}: all episodes`,
     description:
       programme.description ??
       `Every episode of ${programme.title} from The Narrative Network${episodes[0] ? `, including “${episodes[0].title}”` : ""}.`,
     path: `/watch/${programme.slug}`,
-  })
+    }),
+    ...(thin && THIN_PAGE),
+  }
 }
 
 export default async function ProgrammePage({ params }: { params: Promise<{ programme: string }> }) {

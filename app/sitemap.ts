@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next"
 
 import { REGIONS, SECTIONS, SITE_URL } from "@/lib/site/config"
+import { MIN_LISTING_ITEMS } from "@/lib/site/metadata"
 import { getStories, storyUrl, type Story } from "@/lib/site/news"
 import { STORY_TYPE_PAGES } from "@/lib/site/story-type-pages"
 import { getWatchPaths } from "@/lib/site/watch"
+import { client } from "@/sanity/lib/client"
 
 export const revalidate = 300
 
@@ -22,7 +24,11 @@ const PAGES = [
 // Every live story, plus listing pages dated by their newest story, so search engines
 // (Bing asks for accurate lastmod values) know which pages have changed
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [stories, watch] = await Promise.all([getStories(), getWatchPaths()])
+  const [stories, watch, authorsWithBio] = await Promise.all([
+    getStories(),
+    getWatchPaths(),
+    client.fetch<string[]>(`*[_type == "author" && defined(bio) && pt::text(bio) != ""].slug.current`, {}, { next: { revalidate: 300 } }),
+  ])
   const newest = (list: Story[]) =>
     list.reduce<string | undefined>((latest, s) => (!latest || s.updatedAt > latest ? s.updatedAt : latest), undefined)
   const live = stories.filter((s) => !s.archived)
@@ -45,14 +51,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}/region/${region.slug}`,
       lastModified: newest(stories.filter((s) => s.region === region.slug)),
     })),
-    ...[...authors].map(([slug, list]) => ({ url: `${SITE_URL}/authors/${slug}`, lastModified: newest(list) })),
-    // Story-type pages only once they have stories (empty ones are noindex)
+    // Only pages that are allowed into search results (see MIN_LISTING_ITEMS in lib/site/metadata.ts)
+    ...[...authors]
+      .filter(([slug, list]) => authorsWithBio.includes(slug) || list.length >= MIN_LISTING_ITEMS)
+      .map(([slug, list]) => ({ url: `${SITE_URL}/authors/${slug}`, lastModified: newest(list) })),
     ...Object.entries(STORY_TYPE_PAGES).flatMap(([path, info]) => {
       const list = stories.filter((s) => s.storyType === info.type)
-      return list.length ? [{ url: `${SITE_URL}/${path}`, lastModified: newest(list) }] : []
+      return list.length >= MIN_LISTING_ITEMS ? [{ url: `${SITE_URL}/${path}`, lastModified: newest(list) }] : []
     }),
     { url: `${SITE_URL}/watch`, lastModified: watch.episodes.map((e) => e.publishedAt).sort().at(-1) },
-    ...watch.programmes.map((p) => ({
+    ...watch.programmes
+      .filter((p) => p.hasDescription || watch.episodes.filter((e) => e.programme === p.slug).length >= MIN_LISTING_ITEMS)
+      .map((p) => ({
       url: `${SITE_URL}/watch/${p.slug}`,
       lastModified: watch.episodes.filter((e) => e.programme === p.slug).map((e) => e.publishedAt).sort().at(-1),
     })),

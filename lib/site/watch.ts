@@ -128,9 +128,9 @@ export async function episodesForStory(storyId: string) {
 
 // Every episode and programme address, for the sitemap and build
 export async function getWatchPaths() {
-  return client.fetch<{ programmes: { slug: string }[]; episodes: { slug: string; programme: string; publishedAt: string }[] }>(
+  return client.fetch<{ programmes: { slug: string; hasDescription: boolean }[]; episodes: { slug: string; programme: string; publishedAt: string }[] }>(
     `{
-      "programmes": *[_type == "programme" && defined(slug.current)]{"slug": slug.current},
+      "programmes": *[_type == "programme" && defined(slug.current)]{"slug": slug.current, "hasDescription": defined(description) && description != ""},
       "episodes": *[${LIVE_EPISODE}]{"slug": slug.current, "programme": programme->slug.current, publishedAt}
     }`,
     {},

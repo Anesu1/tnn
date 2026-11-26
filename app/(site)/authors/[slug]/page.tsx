@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { ArticleBody } from "@/components/site/article-body"
 import { SectionHead, StoryGrid } from "@/components/site/stories"
 import { SITE_NAME, SITE_URL } from "@/lib/site/config"
-import { pageMetadata } from "@/lib/site/metadata"
+import { MIN_LISTING_ITEMS, pageMetadata, THIN_PAGE } from "@/lib/site/metadata"
 import { getStoriesWith } from "@/lib/site/news"
 import { STATIC_PAGES } from "@/lib/site/static-pages"
 import { client } from "@/sanity/lib/client"
@@ -62,13 +62,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return pageMetadata({ title: "TNN Newsroom", description: page.description, path: `/authors/${slug}` })
   }
   const author = await getAuthor(slug)
-  return author
-    ? pageMetadata({
+  if (!author) return {}
+  // Indexed once the profile has a bio or a few stories of its own
+  const thin = !author.bioText?.trim() && (await getStoriesWith("author._ref == $authorId", { authorId: author._id }, MIN_LISTING_ITEMS)).length < MIN_LISTING_ITEMS
+  return {
+    ...pageMetadata({
         title: author.name,
         description: author.bioText?.slice(0, 160) || `${author.role ? `${author.role}, ` : ""}reporting by ${author.name} for The Narrative Network.`,
         path: `/authors/${slug}`,
-      })
-    : {}
+      }),
+    ...(thin && THIN_PAGE),
+  }
 }
 
 export default async function AuthorPage({ params }: { params: Promise<{ slug: string }> }) {
