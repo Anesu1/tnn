@@ -4,6 +4,9 @@
 export const SITE_URL = "https://thenarrativenetwork.org"
 export const SITE_NAME = "The Narrative Network"
 export const SITE_DESCRIPTION = "News, perspectives and conversations from Zimbabwe, Africa and the world."
+// Longer description for search results on the homepage (Bing flags overly short descriptions)
+export const SITE_SEARCH_DESCRIPTION =
+  "Independent news and analysis from Zimbabwe, Africa and the world: politics, business, health, education, communities, sport and culture."
 export const WHATSAPP_URL = "https://whatsapp.com/channel/0029VbCHiM5EquiT4lGKOy2L"
 export const YOUTUBE_URL = "https://www.youtube.com/@TheNarrativeNetwork-t9c"
 export const TIME_ZONE = "Africa/Harare"
@@ -14,12 +17,12 @@ export const GTM_ID = "GTM-K8DR5L5R"
 // The six sections match the fixed list in sanity/schemaTypes/categoryType.ts.
 // `nav` is the menu label; `short` is used on phones, where the menu is a tight grid.
 export const SECTIONS = [
-  { slug: "politics", title: "Politics & Governance", nav: "POLITICS", short: "POLITICS", keys: ["politics-governance"] },
-  { slug: "business", title: "Business & Economy", nav: "BUSINESS", short: "BUSINESS", keys: ["business-economy"] },
-  { slug: "health-education", title: "Health & Education", nav: "HEALTH & EDUCATION", short: "HEALTH", keys: ["health-education"] },
-  { slug: "community", title: "Community & Society", nav: "COMMUNITY", short: "COMMUNITY", keys: ["community-society"] },
-  { slug: "sport-culture", title: "Sports & Culture", nav: "SPORT & CULTURE", short: "SPORT", keys: ["sports-culture"] },
-  { slug: "entertainment", title: "Entertainment & Lifestyle", nav: "ENTERTAINMENT", short: "LIFESTYLE", keys: ["entertainment-lifestyle"] },
+  { slug: "politics", title: "Politics & Governance", nav: "POLITICS", short: "POLITICS", keys: ["politics-governance"], about: "Government, elections, Parliament, public policy, political parties and constitutional affairs in Zimbabwe and across Africa." },
+  { slug: "business", title: "Business & Economy", nav: "BUSINESS", short: "BUSINESS", keys: ["business-economy"], about: "Companies, finance, markets, mining, agriculture, jobs and the cost of living in Zimbabwe and across Africa." },
+  { slug: "health-education", title: "Health & Education", nav: "HEALTH & EDUCATION", short: "HEALTH", keys: ["health-education"], about: "Healthcare, public health, hospitals, schools, universities, exams and education policy in Zimbabwe and across Africa." },
+  { slug: "community", title: "Community & Society", nav: "COMMUNITY", short: "COMMUNITY", keys: ["community-society"], about: "Local communities, crime and courts, social issues, infrastructure and public services across Zimbabwe." },
+  { slug: "sport-culture", title: "Sports & Culture", nav: "SPORT & CULTURE", short: "SPORT", keys: ["sports-culture"], about: "Football and other sport, arts, music, heritage, festivals and culture in Zimbabwe and across Africa." },
+  { slug: "entertainment", title: "Entertainment & Lifestyle", nav: "ENTERTAINMENT", short: "LIFESTYLE", keys: ["entertainment-lifestyle"], about: "Entertainment, celebrity news, film, television, fashion, food, travel and lifestyle from Zimbabwe and beyond." },
 ] as const
 
 export type SectionSlug = (typeof SECTIONS)[number]["slug"]
@@ -48,9 +51,24 @@ export function sectionForCategoryKey(key?: string) {
 }
 
 export const REGIONS = [
-  { slug: "zimbabwe", title: "Zimbabwe", intro: "Reporting and perspectives from Zimbabwe." },
-  { slug: "africa", title: "Africa", intro: "Reporting and perspectives from Africa." },
-  { slug: "world", title: "World", intro: "International stories and their connections to Africa." },
+  {
+    slug: "zimbabwe",
+    title: "Zimbabwe",
+    intro: "Reporting and perspectives from Zimbabwe.",
+    about: "Latest news from across Zimbabwe: politics, the economy, courts, communities, health, education and culture, from The Narrative Network.",
+  },
+  {
+    slug: "africa",
+    title: "Africa",
+    intro: "Reporting and perspectives from Africa.",
+    about: "News and analysis from across Africa, including South Africa, SADC and the wider continent, with the context that matters to Zimbabwean and African readers.",
+  },
+  {
+    slug: "world",
+    title: "World",
+    intro: "International stories and their connections to Africa.",
+    about: "International news and its connections to Zimbabwe and Africa: diplomacy, trade, migration, climate and global events, explained by The Narrative Network.",
+  },
 ] as const
 
 export type RegionSlug = (typeof REGIONS)[number]["slug"]

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 
 import { FollowBand } from "@/components/site/chrome"
 import { BreakingBand, FeatureStory, SectionHead, SideStory, StoryGrid, VideoGrid } from "@/components/site/stories"
-import { formatDate, SITE_DESCRIPTION, SITE_NAME, SITE_URL, WHATSAPP_URL, YOUTUBE_URL } from "@/lib/site/config"
+import { formatDate, SITE_NAME, SITE_SEARCH_DESCRIPTION, SITE_URL, WHATSAPP_URL, YOUTUBE_URL } from "@/lib/site/config"
 import { getStories, homepageStories } from "@/lib/site/news"
 
 export const revalidate = 60
@@ -11,11 +11,11 @@ const TITLE = `${SITE_NAME} — Zimbabwe, Africa and the world`
 
 export const metadata: Metadata = {
   title: { absolute: `${TITLE} | TNN` },
-  description: SITE_DESCRIPTION,
+  description: SITE_SEARCH_DESCRIPTION,
   alternates: { canonical: "/" },
   openGraph: {
     title: TITLE,
-    description: SITE_DESCRIPTION,
+    description: SITE_SEARCH_DESCRIPTION,
     url: `${SITE_URL}/`,
     type: "website",
     siteName: SITE_NAME,
@@ -40,6 +40,17 @@ const ORGANIZATION_LD = {
   ],
 }
 
+// Tells search engines the site's name (and its short form) for results
+const WEBSITE_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE_NAME,
+  alternateName: "TNN",
+  url: `${SITE_URL}/`,
+  inLanguage: "en",
+  publisher: { "@type": "NewsMediaOrganization", name: SITE_NAME, url: SITE_URL },
+}
+
 export default async function HomePage() {
   const stories = await getStories("", 80)
   const current = stories.filter((story) => !story.archived)
@@ -53,6 +64,7 @@ export default async function HomePage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_LD) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_LD) }} />
 
       {/* The lead carries its own BREAKING label, so the band only lists the other breaking stories */}
       <BreakingBand stories={breaking.filter((story) => story.id !== lead?.id)} />

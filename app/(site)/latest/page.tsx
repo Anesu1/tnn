@@ -7,7 +7,12 @@ export const revalidate = 60
 
 const INTRO = "The latest reporting from TNN. Earlier articles are available in the archive."
 
-export const metadata = pageMetadata({ title: "Latest news", description: INTRO, path: "/latest" })
+export const metadata = pageMetadata({
+  title: "Latest Zimbabwe and Africa news",
+  description:
+    "The latest news from The Narrative Network, newest first: Zimbabwe, Africa and the world, across politics, business, health, education, sport and culture.",
+  path: "/latest",
+})
 
 export default async function LatestPage() {
   const stories = await getStories("archived != true")

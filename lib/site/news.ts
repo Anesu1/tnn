@@ -41,6 +41,8 @@ export type Story = {
 }
 
 export type FullStory = Story & {
+  seoTitle?: string
+  seoDescription?: string
   content?: unknown[]
   plainText: string
   sources: { title: string; url: string }[]
@@ -64,6 +66,8 @@ type RawStory = {
   content?: unknown[]
   plainText?: string
   sources?: { title?: string; url?: string }[]
+  seoTitle?: string
+  seoDescription?: string
   storyType?: string
   lastUpdated?: string
   placement?: string
@@ -88,7 +92,7 @@ const STORY_FIELDS = `
   readTime, "tags": tags[]->title,
   storyType, lastUpdated, placement, topOrder, featuredUntil, breaking, breakingUntil`
 
-const FULL_STORY_FIELDS = `${STORY_FIELDS}, content, "plainText": pt::text(content), "sources": sources[]{title, url}`
+const FULL_STORY_FIELDS = `${STORY_FIELDS}, content, "plainText": pt::text(content), "sources": sources[]{title, url}, seoTitle, seoDescription`
 
 function toStory(raw: RawStory): Story {
   const region = REGIONS.find((r) => r.slug === raw.region)
@@ -96,7 +100,8 @@ function toStory(raw: RawStory): Story {
   const image: StoryImage =
     raw.image?.url && raw.image.width && raw.image.height
       ? {
-          url: raw.image.url,
+          // Sanity serves the same image under a readable file name, which Bing recommends
+          url: `${raw.image.url}/${raw.slug}.${raw.image.url.split(".").pop()}`,
           width: raw.image.width,
           height: raw.image.height,
           alt: raw.image.alt || raw.title,
@@ -175,6 +180,8 @@ export async function getStory(slug: string): Promise<FullStory | null> {
     content: raw.content,
     plainText: raw.plainText ?? "",
     sources: (raw.sources ?? []).filter((s): s is { title: string; url: string } => Boolean(s.title && s.url)),
+    seoTitle: raw.seoTitle?.trim() || undefined,
+    seoDescription: raw.seoDescription?.trim() || undefined,
   }
 }
 

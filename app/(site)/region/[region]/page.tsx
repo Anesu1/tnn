@@ -15,7 +15,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ region: string }> }) {
   const { region: slug } = await params
   const region = REGIONS.find((r) => r.slug === slug)
-  return region ? pageMetadata({ title: region.title, description: region.intro, path: `/region/${region.slug}` }) : {}
+  return region ? pageMetadata({ title: `${region.title} news`, description: region.about, path: `/region/${region.slug}` }) : {}
 }
 
 export default async function RegionPage({ params }: { params: Promise<{ region: string }> }) {

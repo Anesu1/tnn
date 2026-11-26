@@ -18,13 +18,25 @@ function absoluteImage(story: FullStory) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const story = await getStory((await params).slug)
   if (!story) return {}
-  return pageMetadata({
-    title: story.title,
-    description: story.summary || story.plainText,
+  const metadata = pageMetadata({
+    title: story.seoTitle ?? story.title,
+    description: story.seoDescription ?? (story.summary || story.plainText),
     path: storyUrl(story.slug),
     image: absoluteImage(story),
     type: "article",
   })
+  // Article details for link previews and search engines
+  return {
+    ...metadata,
+    openGraph: {
+      ...metadata.openGraph,
+      type: "article" as const,
+      publishedTime: story.publishedAt,
+      modifiedTime: story.lastUpdated ?? story.publishedAt,
+      section: story.categoryLabel,
+      authors: [story.author?.name ?? "TNN Newsroom"],
+    },
+  }
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -67,12 +79,23 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     articleSection: story.categoryLabel,
   }
 
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+      ...(section ? [{ "@type": "ListItem", position: 2, name: section.title, item: `${SITE_URL}/category/${section.slug}` }] : []),
+      { "@type": "ListItem", position: section ? 3 : 2, name: story.title, item: url },
+    ],
+  }
+
   const whatsapp = `https://wa.me/?text=${encodeURIComponent(`${story.title} ${url}`)}`
   const correction = `/contact?type=correction&article=${encodeURIComponent(storyUrl(story.slug))}`
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <article className="article">
         {(story.categoryLabel || story.regionTitle) && (
           <p className="label">

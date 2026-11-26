@@ -24,20 +24,20 @@ const nextConfig = {
       { source: "/desk", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }, { key: "Cache-Control", value: "private, no-store" }, { key: "X-Frame-Options", value: "DENY" }] },
     ]
   },
-  // Addresses from the previous site design
+  // Addresses from the previous site design. 301 rather than 308: Bing asks for 301 on permanent moves.
   async redirects() {
     return [
-      { source: "/article/:slug", destination: "/news/:slug", permanent: true },
-      { source: "/news", destination: "/latest", permanent: true },
-      { source: "/categories", destination: "/latest", permanent: true },
-      { source: "/categories/:slug", destination: "/category/:slug", permanent: true },
-      { source: "/category", destination: "/latest", permanent: true },
-      { source: "/business", destination: "/category/business", permanent: true },
-      { source: "/tech", destination: "/latest", permanent: true },
-      { source: "/advertise", destination: "/partnerships", permanent: true },
-      { source: "/privacy-policy", destination: "/privacy", permanent: true },
-      { source: "/terms-of-service", destination: "/privacy", permanent: true },
-      { source: "/login", destination: "/write/login", permanent: true },
+      { source: "/article/:slug", destination: "/news/:slug", statusCode: 301 },
+      { source: "/news", destination: "/latest", statusCode: 301 },
+      { source: "/categories", destination: "/latest", statusCode: 301 },
+      { source: "/categories/:slug", destination: "/category/:slug", statusCode: 301 },
+      { source: "/category", destination: "/latest", statusCode: 301 },
+      { source: "/business", destination: "/category/business", statusCode: 301 },
+      { source: "/tech", destination: "/latest", statusCode: 301 },
+      { source: "/advertise", destination: "/partnerships", statusCode: 301 },
+      { source: "/privacy-policy", destination: "/privacy", statusCode: 301 },
+      { source: "/terms-of-service", destination: "/privacy", statusCode: 301 },
+      { source: "/login", destination: "/write/login", statusCode: 301 },
     ]
   },
   experimental: {

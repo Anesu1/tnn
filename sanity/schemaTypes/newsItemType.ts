@@ -14,6 +14,25 @@ export default {
             validation: (Rule: any) => Rule.required(),
         },
         {
+            name: "seoTitle",
+            title: "Search headline (optional)",
+            type: "string",
+            fieldset: "search",
+            description:
+                "What Google and Bing show as the title. Use it when people search with words the headline leaves out, such as a full name: “Prophet Uebert Angel arrested…”. Leave empty to use the headline.",
+            validation: (Rule: any) => Rule.max(70).warning("Search engines cut titles at about 60 characters"),
+        },
+        {
+            name: "seoDescription",
+            title: "Search description (optional)",
+            type: "text",
+            rows: 2,
+            fieldset: "search",
+            description:
+                "The line under the title in search results: who, what, where, in plain words. Leave empty to use the summary.",
+            validation: (Rule: any) => Rule.max(160).warning("Search engines show about 160 characters"),
+        },
+        {
             name: "slug",
             title: "Slug",
             type: "slug",
@@ -313,6 +332,12 @@ export default {
     ],
 
     fieldsets: [
+        {
+            name: "search",
+            title: "Search engines",
+            description: "Optional. How the story appears in Google and Bing results.",
+            options: { collapsible: true, collapsed: true },
+        },
         {
             name: "homepage",
             title: "Homepage placement",

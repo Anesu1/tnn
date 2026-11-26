@@ -8,9 +8,6 @@ import { getStoriesWith } from "@/lib/site/news"
 
 export const revalidate = 60
 
-const intro = (title: string) =>
-  `Latest reporting and clearly marked archive stories in ${title.toLowerCase()}.`
-
 // Older links used a Sanity category key or slug (e.g. /category/politics-governance), or a
 // section that has since been renamed or replaced
 const LEGACY_SLUGS: Record<string, string> = {
@@ -41,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const section = SECTIONS.find((s) => s.slug === slug)
   return section
-    ? pageMetadata({ title: section.title, description: intro(section.title), path: `/category/${section.slug}` })
+    ? pageMetadata({ title: `${section.title} news`, description: `${section.about} Latest reporting from TNN.`, path: `/category/${section.slug}` })
     : {}
 }
 
@@ -58,7 +55,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
   const [lead, ...rest] = await getStoriesWith("categories[0]->key in $keys", { keys: [...section.keys] })
   return (
     <>
-      <PageTitle label="The Narrative Network" title={section.title} intro={intro(section.title)} />
+      <PageTitle label="The Narrative Network" title={section.title} intro={section.about} />
       {lead ? (
         <>
           <div className="listing-lead">
