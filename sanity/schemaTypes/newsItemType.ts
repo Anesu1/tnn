@@ -9,28 +9,12 @@ export default {
     fields: [
         {
             name: "title",
-            title: "Title",
+            title: "Headline",
             type: "string",
-            validation: (Rule: any) => Rule.required(),
-        },
-        {
-            name: "seoTitle",
-            title: "Search headline (optional)",
-            type: "string",
-            fieldset: "search",
-            description:
-                "What Google and Bing show as the title. Use it when people search with words the headline leaves out, such as a full name: “Prophet Uebert Angel arrested…”. Leave empty to use the headline.",
-            validation: (Rule: any) => Rule.max(70).warning("Search engines cut titles at about 60 characters"),
-        },
-        {
-            name: "seoDescription",
-            title: "Search description (optional)",
-            type: "text",
-            rows: 2,
-            fieldset: "search",
-            description:
-                "The line under the title in search results: who, what, where, in plain words. Leave empty to use the summary.",
-            validation: (Rule: any) => Rule.max(160).warning("Search engines show about 160 characters"),
+            validation: (Rule: any) => [
+                Rule.required().error("Add a headline"),
+                Rule.max(140).error("Headlines are under 140 characters. Has the story text gone in here by mistake?"),
+            ],
         },
         {
             name: "slug",
@@ -63,13 +47,6 @@ export default {
                         ? "The update can't be before the story was published"
                         : true,
                 ),
-        },
-        {
-            name: "readTime",
-            title: "Read Time",
-            type: "string",
-            description: 'Estimated reading time (e.g., "3 min")',
-            validation: (Rule: any) => Rule.required(),
         },
         {
             name: "author",
@@ -128,6 +105,25 @@ export default {
             ],
         },
         {
+            name: "seoTitle",
+            title: "Search headline (optional)",
+            type: "string",
+            fieldset: "search",
+            description:
+                "What Google and Bing show as the title. Use it when people search with words the headline leaves out, such as a full name: “Prophet Uebert Angel arrested…”. Leave empty to use the headline.",
+            validation: (Rule: any) => Rule.max(70).warning("Search engines cut titles at about 60 characters"),
+        },
+        {
+            name: "seoDescription",
+            title: "Search description (optional)",
+            type: "text",
+            rows: 2,
+            fieldset: "search",
+            description:
+                "The line under the title in search results: who, what, where, in plain words. Leave empty to use the summary.",
+            validation: (Rule: any) => Rule.max(160).warning("Search engines show about 160 characters"),
+        },
+        {
             name: "categories",
             title: "Sections",
             type: "array",
@@ -158,6 +154,7 @@ export default {
             type: "string",
             description: "Shown as a label on the story, so readers can tell reporting from analysis and opinion",
             initialValue: "news",
+            validation: (Rule: any) => Rule.required().error("Choose a story type"),
             options: {
                 list: [
                     { title: "News", value: "news" },
@@ -240,14 +237,27 @@ export default {
             name: "tags",
             title: "Tags",
             type: "array",
+            description:
+                "People, places, organisations and running stories, e.g. “Uebert Angel”, “ZESA”, “2028 elections”. Stories that share tags are shown together as related reading. Start typing to find a tag, or create a new one.",
             of: [{ type: "reference", to: { type: "tag" } }],
+            validation: (Rule: any) => Rule.unique().error("That tag is already on the story"),
         },
         {
             name: "content",
-            title: "Content",
+            title: "Story text",
             type: "array",
+            validation: (Rule: any) => Rule.required().error("Add the story text before publishing"),
             of: [
-                { type: "block" },
+                {
+                    type: "block",
+                    // The story's headline is the page's only H1, so text headings start at H2
+                    styles: [
+                        { title: "Normal", value: "normal" },
+                        { title: "Heading", value: "h2" },
+                        { title: "Subheading", value: "h3" },
+                        { title: "Quote", value: "blockquote" },
+                    ],
+                },
                 {
                     type: "image",
                     options: {
@@ -257,8 +267,18 @@ export default {
                         {
                             name: "alt",
                             type: "string",
-                            title: "Alternative text",
-                            description: "Important for SEO and accessibility",
+                            title: "Photo description",
+                            description: "Describe the photo for readers who can't see it. Also helps Google Images.",
+                            validation: (Rule: any) =>
+                                Rule.custom((alt: string | undefined, context: any) =>
+                                    context.parent?.asset && !alt?.trim() ? "Describe the photo before publishing" : true,
+                                ),
+                        },
+                        {
+                            name: "caption",
+                            type: "string",
+                            title: "Caption and credit",
+                            description: "Shown under the photo, e.g. “Photo: supplied”",
                         },
                     ],
                 },
@@ -284,13 +304,6 @@ export default {
                     preview: { select: { title: "title", subtitle: "url" } },
                 },
             ],
-        },
-        {
-            name: "trending",
-            title: "Trending",
-            type: "boolean",
-            description: "Mark this article as trending",
-            initialValue: false,
         },
         {
             name: "submittedBy",

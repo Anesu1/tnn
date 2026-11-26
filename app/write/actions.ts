@@ -97,10 +97,6 @@ function toBlocks(text: string) {
     }))
 }
 
-function readTime(text: string) {
-  const words = text.split(/\s+/).filter(Boolean).length
-  return `${Math.max(1, Math.round(words / 200))} min`
-}
 
 // Writers can only touch their own stories while they are still unpublished drafts
 async function findOwnDraft(id: string, writerId: string) {
@@ -162,7 +158,6 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
     slug: { _type: 'slug', current: slug },
     excerpt,
     content: toBlocks(content),
-    readTime: readTime(content),
     region,
     storyType,
     categories: validCategories.map((ref) => ({ _type: 'reference', _ref: ref, _key: key() })),

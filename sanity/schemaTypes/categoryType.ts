@@ -1,8 +1,10 @@
 import { TagIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
 
-// The six editorial sections. Keep in sync with SECTIONS in lib/site/config.ts, which decides
-// the public section pages. Breaking news is a switch on each story, not a section.
+// The six editorial sections. The website's section pages, menu and order come from SECTIONS in
+// lib/site/config.ts, matched on the key below, so sections can't be added or deleted in the
+// Studio (sanity.config.ts), and the key and slug are locked. Breaking news is a switch on each
+// story, not a section.
 const fixedCategories = [
   'Politics & Governance',
   'Business & Economy',
@@ -14,94 +16,44 @@ const fixedCategories = [
 
 export const categoryType = defineType({
   name: 'category',
-  title: 'Category',
+  title: 'Section',
   type: 'document',
   icon: TagIcon,
 
   fields: [
-    // Editorial title
     defineField({
       name: 'title',
       type: 'string',
-      validation: Rule =>
-        Rule.required().custom(value => {
-          if (value && !fixedCategories.includes(value)) {
-            return `Title must be one of the fixed categories: ${fixedCategories.join(', ')}`
-          }
-          return true
-        }),
+      validation: (Rule) =>
+        Rule.required().custom((value) =>
+          value && !fixedCategories.includes(value) ? `Must be one of the six sections: ${fixedCategories.join(', ')}` : true,
+        ),
     }),
-
-    // Internal stable key (important for logic)
     defineField({
       name: 'key',
-      title: 'Internal Key',
+      title: 'Internal key',
       type: 'string',
-      description: 'Used in code (e.g. breaking-news, politics-governance, business-economy)',
-      validation: Rule => Rule.required().regex(/^[a-z0-9-]+$/, {
-        name: 'slug',
-        invert: false,
-      }),
+      description: 'Links this section to the website’s section page. Locked: changing it would empty the page.',
+      readOnly: true,
+      validation: (Rule) => Rule.required().regex(/^[a-z0-9-]+$/),
     }),
-
-    // URL slug
     defineField({
       name: 'slug',
       type: 'slug',
-      options: {
-        source: 'title',
-        maxLength: 96,
-      },
-      validation: Rule => Rule.required(),
+      readOnly: true,
+      options: { source: 'title', maxLength: 96 },
+      validation: (Rule) => Rule.required(),
     }),
-
-    // Editorial description
     defineField({
       name: 'description',
       type: 'text',
       rows: 3,
-      validation: Rule => Rule.required(),
-    }),
-
-    // Visual identity
-    defineField({
-      name: 'color',
-      title: 'Category Color',
-      type: 'string',
-      description: 'Hex color (e.g. #e11d48)',
-    }),
-
-    // Homepage / navigation
-    defineField({
-      name: 'featured',
-      title: 'Featured on Homepage',
-      type: 'boolean',
-      initialValue: true,
-    }),
-
-    defineField({
-      name: 'order',
-      type: 'number',
-      description: 'Controls menu & homepage order',
-    }),
-
-    // SEO
-    defineField({
-      name: 'seo',
-      title: 'SEO',
-      type: 'object',
-      options: { collapsible: true },
-      fields: [
-        { name: 'metaTitle', type: 'string' },
-        { name: 'metaDescription', type: 'text' },
-      ],
+      description: 'For editors: what belongs in this section.',
+      validation: (Rule) => Rule.required(),
     }),
   ],
 
   preview: {
-    select: {
-      title: 'title',
-      subtitle: 'description',
-    },
+    select: { title: 'title', subtitle: 'description' },
   },
 })

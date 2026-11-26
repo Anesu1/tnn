@@ -15,6 +15,7 @@ import { structure } from './sanity/deskStructure'
 import { withPublishedAt } from './sanity/actions/setPublishedAt'
 
 export default defineConfig({
+  title: 'TNN Studio',
   basePath: '/studio',
   projectId,
   dataset,
@@ -27,9 +28,16 @@ export default defineConfig({
     visionTool({ defaultApiVersion: apiVersion }),
   ],
   document: {
-    actions: (prev, context) =>
-      context.schemaType === 'newsItem'
-        ? prev.map((action) => (action.action === 'publish' ? withPublishedAt(action) : action))
-        : prev,
+    actions: (prev, context) => {
+      if (context.schemaType === 'newsItem') {
+        return prev.map((action) => (action.action === 'publish' ? withPublishedAt(action) : action))
+      }
+      // The six sections are fixed in the website's code: they can be edited, not added or removed
+      if (context.schemaType === 'category') {
+        return prev.filter((action) => !['delete', 'duplicate', 'unpublish'].includes(action.action ?? ''))
+      }
+      return prev
+    },
+    newDocumentOptions: (prev) => prev.filter((item) => item.templateId !== 'category'),
   },
 })

@@ -28,7 +28,6 @@ export type Story = {
   sectionSlug?: string
   author?: { name: string; slug?: string }
   image: StoryImage
-  readTime?: string
   tags: string[]
   storyType: StoryType
   // Shown as a label for everything except ordinary news
@@ -64,7 +63,6 @@ type RawStory = {
   categoryTitle?: string
   author?: { name: string; slug?: string }
   image?: { url?: string; width?: number; height?: number; alt?: string; caption?: string }
-  readTime?: string
   tags?: string[]
   content?: unknown[]
   plainText?: string
@@ -92,7 +90,7 @@ const STORY_FIELDS = `
   "author": author->{name, "slug": slug.current},
   "image": mainImage{alt, caption, "url": asset->url,
     "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height},
-  readTime, "tags": tags[]->title,
+  "tags": tags[]->title,
   storyType, lastUpdated, placement, topOrder, featuredUntil, breaking, breakingUntil`
 
 const FULL_STORY_FIELDS = `${STORY_FIELDS}, content, "plainText": pt::text(content), "sources": sources[]{title, url}, seoTitle, seoDescription`
@@ -129,7 +127,9 @@ function toStory(raw: RawStory): Story {
     slug: raw.slug,
     summary: raw.summary ?? "",
     publishedAt: raw.publishedAt,
-    updatedAt: raw._updatedAt,
+    // The editorial date: publish time, or the "Last substantial update" an editor sets. Not
+    // _updatedAt, which also moves for typo fixes and housekeeping, so search engines only see real changes.
+    updatedAt: raw.lastUpdated && raw.lastUpdated > raw.publishedAt ? raw.lastUpdated : raw.publishedAt,
     region: raw.region,
     regionTitle: region?.title,
     archived: Boolean(raw.archived),
@@ -139,7 +139,6 @@ function toStory(raw: RawStory): Story {
     sectionSlug: sectionForCategoryKey(raw.categoryKey)?.slug,
     author: raw.author?.name ? raw.author : undefined,
     image,
-    readTime: raw.readTime,
     tags: raw.tags?.filter(Boolean) ?? [],
     storyType,
     typeLabel: storyType === "news" ? undefined : STORY_TYPES[storyType].label,
@@ -194,8 +193,8 @@ export function cardSummary(text: string) {
   return text.length > 178 ? `${text.slice(0, 177)}…` : text
 }
 
-export function readTimeFor(story: { readTime?: string; plainText?: string }) {
-  if (story.readTime) return story.readTime.replace(/\s*min$/, " min read")
+// Worked out from the story text (about 200 words a minute), so it is always right
+export function readTimeFor(story: { plainText?: string }) {
   const words = (story.plainText ?? "").split(/\s+/).filter(Boolean).length
   return `${Math.max(1, Math.round(words / 200))} min read`
 }

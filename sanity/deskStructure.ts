@@ -1,5 +1,5 @@
 import type {StructureResolver} from 'sanity/structure'
-import {ArchiveIcon, BoltIcon, CalendarIcon, ClockIcon, HomeIcon, PlayIcon, StarIcon, UndoIcon, UserIcon, UsersIcon, WarningOutlineIcon} from '@sanity/icons'
+import {BoltIcon, CalendarIcon, ClockIcon, DocumentsIcon, HomeIcon, ImageIcon, PlayIcon, StarIcon, TagIcon, TagsIcon, UndoIcon, UserIcon, UsersIcon, WarningOutlineIcon} from '@sanity/icons'
 
 // Published stories missing what newsItemType now requires before publishing
 const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (
@@ -9,6 +9,9 @@ const NEEDS_ATTENTION_FILTER = `_type == "newsItem" && !(_id in path("drafts.**"
   !defined(excerpt) || excerpt == "" ||
   (defined(mainImage.asset) && (!defined(mainImage.alt) || mainImage.alt == ""))
 )`
+
+// Published stories with no photo, or one narrower than Google's 1200px for large previews
+const PHOTOS_FILTER = `_type == "newsItem" && !(_id in path("drafts.**")) && (!defined(mainImage.asset) || mainImage.asset->metadata.dimensions.width < 1200)`
 
 // https://www.sanity.io/docs/structure-builder-cheat-sheet
 export const structure: StructureResolver = (S) =>
@@ -87,6 +90,15 @@ export const structure: StructureResolver = (S) =>
             .filter(NEEDS_ATTENTION_FILTER)
             .defaultOrdering([{field: 'publishedAt', direction: 'desc'}]),
         ),
+      S.listItem()
+        .title('Photos to improve')
+        .icon(ImageIcon)
+        .child(
+          S.documentList()
+            .title('No photo, or narrower than 1200px')
+            .filter(PHOTOS_FILTER)
+            .defaultOrdering([{field: 'publishedAt', direction: 'desc'}]),
+        ),
       S.divider(),
       S.listItem()
         .title('People')
@@ -108,13 +120,15 @@ export const structure: StructureResolver = (S) =>
                     .schemaType('author')
                     .filter('_type == "author" && portalAccess == true'),
                 ),
-              S.divider(),
-              // "writer" is the old separate login record, replaced by portal access on authors.
-              // Kept visible until scripts/migrate-writers-to-authors.mjs has moved them.
               S.listItem()
-                .title('Old writer records (to migrate)')
-                .icon(ArchiveIcon)
-                .child(S.documentTypeList('writer').title('Old writer records (read-only)')),
+                .title('Profiles to complete')
+                .icon(WarningOutlineIcon)
+                .child(
+                  S.documentList()
+                    .title('No bio, photo or role')
+                    .schemaType('author')
+                    .filter('_type == "author" && (!defined(bio) || !defined(photo.asset) || !defined(role) || role == "")'),
+                ),
             ]),
         ),
       // Video programmes and their episodes (pages under /watch)
@@ -130,5 +144,10 @@ export const structure: StructureResolver = (S) =>
             ]),
         ),
       S.divider(),
-      ...S.documentTypeListItems().filter((item) => !['author', 'writer', 'programme', 'episode'].includes(item.getId() ?? '')),
+      S.listItem()
+        .title('All stories')
+        .icon(DocumentsIcon)
+        .child(S.documentTypeList('newsItem').title('All stories').defaultOrdering([{field: 'publishedAt', direction: 'desc'}])),
+      S.documentTypeListItem('category').title('Sections').icon(TagIcon),
+      S.documentTypeListItem('tag').title('Tags').icon(TagsIcon),
     ])
