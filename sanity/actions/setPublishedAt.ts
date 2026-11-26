@@ -37,8 +37,8 @@ export function withPublishedAt(originalPublishAction: DocumentActionComponent):
         if (!draft?.slug?.current && draft?.title) {
           patches.push({set: {slug: {_type: 'slug', current: slugify(draft.title)}}})
         }
-        if (props.draft?.reviewStatus || props.draft?.editorNote) {
-          patches.push({unset: ['reviewStatus', 'editorNote']})
+        if (props.draft?.reviewStatus || props.draft?.editorNote || props.draft?.previousEditorNote) {
+          patches.push({unset: ['reviewStatus', 'editorNote', 'previousEditorNote']})
         }
         if (patches.length) patch.execute(patches)
         originalResult.onHandle?.()

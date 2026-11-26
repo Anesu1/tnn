@@ -369,13 +369,26 @@ export default {
             type: "text",
             rows: 4,
             fieldset: "review",
-            description: "What should they change? They see this in the writer portal.",
+            description: "What should they change? They get it by email and see it in the writer portal. Leave the story unpublished.",
             validation: (Rule: any) =>
                 Rule.custom((note: string | undefined, context: any) =>
                     context.document?.reviewStatus === "changesRequested" && !note?.trim()
                         ? "Tell the writer what to change"
                         : true,
                 ),
+        },
+        {
+            // Set by the writer portal when the reporter resubmits, so the editor can check
+            // the changes against what they asked for. Cleared on publish.
+            name: "previousEditorNote",
+            group: "review",
+            title: "Your last note",
+            type: "text",
+            rows: 3,
+            fieldset: "review",
+            readOnly: true,
+            description: "What you asked for last time. The reporter has resubmitted since.",
+            hidden: ({ document }: any) => !document?.previousEditorNote,
         },
     ],
 

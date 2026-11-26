@@ -3,6 +3,7 @@ import { addDays, todayISO, weekStart } from "@/lib/desk/config"
 import { inviteEmail, renderEmail, type EmailAudience, type EmailContent } from "@/lib/desk/email"
 import { digestEmail, emailEnabled, reportEmail } from "@/lib/desk/notify"
 import { briefingContent } from "@/lib/newsletter"
+import { publishedEmail, sentBackEmail, submittedEmail } from "@/lib/story-notify"
 
 // What each Desk email looks like. The morning summary uses today's real data; the others
 // show the layout with an example.
@@ -55,6 +56,23 @@ export default async function EmailPreview({ searchParams }: { searchParams: Pro
         action: { label: "Answer it on the Desk", href: "/desk/decisions" },
       },
     },
+    {
+      name: "Story to review",
+      who: "The reviewer (REVIEW_EMAIL), when a reporter submits or resubmits from the writer portal",
+      ...submittedEmail({ baseId: "example", title: "Example: Harare traders count losses as floods return", writerName: "Example Reporter", resubmitted: false }),
+    },
+    {
+      name: "Changes requested",
+      who: "The reporter, a few minutes after the editor sends a story back with a note",
+      ...sentBackEmail({ baseId: "example", title: "Example: Harare traders count losses as floods return", writerName: "Example Reporter", note: "Example: please add a comment from the City of Harare and check the figures in the second paragraph." }),
+      to: { audience: "writer" },
+    },
+    {
+      name: "Story published",
+      who: "The reporter, when their story goes live (including scheduled stories)",
+      ...publishedEmail({ title: "Example: Harare traders count losses as floods return", slug: "example", writerName: "Example Reporter" }),
+      to: { audience: "writer" },
+    },
     ...(briefing
       ? [
           {
@@ -94,7 +112,7 @@ export default async function EmailPreview({ searchParams }: { searchParams: Pro
             <h2>{sample.name}</h2>
             <span className="meta">{sample.who}</span>
           </div>
-          <p className="meta">Subject: {sample.to ? "" : "TNN Desk: "}{sample.subject}</p>
+          <p className="meta">Subject: {sample.to || sample.name === "Story to review" ? "" : "TNN Desk: "}{sample.subject}</p>
           <iframe
             title={`${sample.name} email`}
             srcDoc={renderEmail(sample.content, sample.to).html}

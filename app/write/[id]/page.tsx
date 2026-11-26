@@ -8,7 +8,7 @@ import { getWriteClient } from "@/sanity/lib/writeClient"
 type DraftStory = {
   title?: string
   excerpt?: string
-  content?: { _type: string; children?: { text?: string }[] }[]
+  content?: { _type: string; style?: string; markDefs?: unknown[]; children?: { text?: string; marks?: string[] }[] }[]
   categories?: string[]
   region?: string
   storyType?: string
@@ -55,6 +55,15 @@ export default async function EditStoryPage({ params }: { params: Promise<{ id: 
     .filter((block) => block._type === "block")
     .map((block) => (block.children ?? []).map((child) => child.text ?? "").join(""))
     .join("\n\n")
+  // Headings, links, bold text or photos the editor added in the Studio. The form below is plain
+  // text: leaving the text as it is keeps them; changing it replaces them (app/write/actions.ts).
+  const formatted = (story.content ?? []).some(
+    (block) =>
+      block._type !== "block" ||
+      (block.style !== undefined && block.style !== "normal") ||
+      (block.markDefs?.length ?? 0) > 0 ||
+      (block.children ?? []).some((child) => (child.marks?.length ?? 0) > 0),
+  )
 
   return (
     <>
@@ -62,12 +71,19 @@ export default async function EditStoryPage({ params }: { params: Promise<{ id: 
       <h1 style={{ marginTop: 8 }}>Edit your story</h1>
       <p className="intro">
         {sentBack
-          ? "The chief editor sent this story back. Make the changes below, then resubmit it for approval."
+          ? "The chief editor sent this story back. Make the changes below, then resubmit it. They get an email when you do."
           : "You can keep editing until the chief editor publishes it."}
       </p>
       {sentBack && editorNote && (
         <p className="editor-note" style={{ maxWidth: 760, marginTop: 20 }}>
           <strong>Note from the editor:</strong> {editorNote}
+        </p>
+      )}
+      {formatted && (
+        <p className="editor-note" style={{ maxWidth: 760, marginTop: 12 }}>
+          <strong>The editor has formatted this story</strong> with headings, links, bold text or photos that this form can’t
+          show. If you only change the headline, summary, sections or photo, that formatting is kept. If you change the story
+          text, it is replaced by your plain text, so for small wording changes it may be easier to ask the editor.
         </p>
       )}
       <StoryForm categories={categories} initial={{ id, ...story, content }} resubmit={sentBack} />

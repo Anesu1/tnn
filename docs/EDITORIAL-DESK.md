@@ -40,6 +40,19 @@ Reminder emails are off until you add all three of these (after the review with 
 | `DESK_EMAIL_FROM` | e.g. `TNN Desk <desk@thenarrativenetwork.org>` (the domain must be verified in Resend) |
 | `DESK_REMINDERS_ENABLED` | `true` |
 
+Story emails between reporters and the editor need only `RESEND_API_KEY`, `DESK_EMAIL_FROM` and `DESK_CRON_SECRET`:
+
+| Name | Value |
+|---|---|
+| `REVIEW_EMAIL` | Who reviews submitted stories, e.g. the Managing Editor's address (several: separate with commas). Without it, the Desk's CEO and Managing Editor accounts get them. |
+| `STORY_EMAILS` | Set to `off` to stop all story emails |
+
+- A reporter submits or resubmits in the writer portal → email to `REVIEW_EMAIL` straight away
+- The editor sends a story back (Review tab: “Changes requested” + a note) → the reporter gets the note by email within about five minutes. A changed note is sent again.
+- A reporter's story goes live (including scheduled ones) → the reporter gets a “Published” email
+
+Previews: Desk → Emails. The five-minute job is `netlify/functions/story-notify.mts`.
+
 Redeploy after changing these.
 
 ## 3. Create the two accounts

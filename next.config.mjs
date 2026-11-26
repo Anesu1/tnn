@@ -37,6 +37,8 @@ const nextConfig = {
       { source: "/advertise", destination: "/partnerships", statusCode: 301 },
       { source: "/privacy-policy", destination: "/privacy", statusCode: 301 },
       { source: "/login", destination: "/write/login", statusCode: 301 },
+      // Name spelling corrected
+      { source: "/authors/ayesha-nyanzundaa", destination: "/authors/ayesha-nyanzuda", statusCode: 301 },
       // Earlier section addresses, one hop straight to the current section page. Breaking news is
       // now a label on stories, not a section.
       { source: "/category/politics-governance", destination: "/category/politics", statusCode: 301 },

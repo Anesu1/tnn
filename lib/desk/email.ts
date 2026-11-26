@@ -66,16 +66,24 @@ function section(s: EmailSection) {
 
 // "desk" emails go to the two Desk accounts; "public" ones (the newsletter) go to readers and
 // carry an unsubscribe link instead of the private-use notice
-export type EmailAudience = { audience: 'desk' } | { audience: 'public'; unsubscribeUrl: string; reason: string }
+// "writer" emails go to reporters using the writer portal (story sent back, story published)
+export type EmailAudience =
+  | { audience: 'desk' }
+  | { audience: 'writer' }
+  | { audience: 'public'; unsubscribeUrl: string; reason: string }
 
 export function renderEmail(content: EmailContent, to: EmailAudience = { audience: 'desk' }) {
   const base = siteBase()
   const year = new Date().getFullYear()
   const isPublic = to.audience === 'public'
-  const home = isPublic ? `${base}/` : `${base}/desk`
-  const notice = isPublic
-    ? `${escape(to.reason)} <a href="${escape(to.unsubscribeUrl)}" style="color:${C.muted};">Unsubscribe</a> at any time.`
-    : 'This email is for approved TNN Editorial Desk accounts only. Please don’t forward it.'
+  const isWriter = to.audience === 'writer'
+  const home = isPublic ? `${base}/` : isWriter ? `${base}/write` : `${base}/desk`
+  const notice =
+    to.audience === 'public'
+      ? `${escape(to.reason)} <a href="${escape(to.unsubscribeUrl)}" style="color:${C.muted};">Unsubscribe</a> at any time.`
+      : isWriter
+        ? 'You’re receiving this because you write for The Narrative Network through the writer portal.'
+        : 'This email is for approved TNN Editorial Desk accounts only. Please don’t forward it.'
   const html = `<!doctype html>
 <html lang="en">
 <head>
@@ -102,8 +110,8 @@ export function renderEmail(content: EmailContent, to: EmailAudience = { audienc
     <tr><td align="center">
       <table role="presentation" class="wrap" width="640" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="pad" style="padding:8px 24px;font:11px ${SANS};letter-spacing:1.4px;color:#ffffff;">${isPublic ? 'ZIMBABWE · AFRICA · THE WORLD' : 'TNN EDITORIAL DESK'}</td>
-          <td class="pad utility-right" align="right" style="padding:8px 24px;font:11px ${SANS};letter-spacing:1.4px;color:#ffffff;">${isPublic ? 'INDEPENDENT PERSPECTIVES' : 'PRIVATE · APPROVED ACCOUNTS ONLY'}</td>
+          <td class="pad" style="padding:8px 24px;font:11px ${SANS};letter-spacing:1.4px;color:#ffffff;">${isPublic ? 'ZIMBABWE · AFRICA · THE WORLD' : isWriter ? 'TNN WRITER PORTAL' : 'TNN EDITORIAL DESK'}</td>
+          <td class="pad utility-right" align="right" style="padding:8px 24px;font:11px ${SANS};letter-spacing:1.4px;color:#ffffff;">${isPublic ? 'INDEPENDENT PERSPECTIVES' : isWriter ? 'FOR TNN CONTRIBUTORS' : 'PRIVATE · APPROVED ACCOUNTS ONLY'}</td>
         </tr>
       </table>
     </td></tr>
@@ -154,7 +162,7 @@ export function renderEmail(content: EmailContent, to: EmailAudience = { audienc
         </td></tr>
         <tr><td class="pad" style="padding:18px 24px 22px;">
           <div style="border-top:1px solid ${C.footLine};padding-top:14px;font:12px/1.6 ${SANS};color:${C.footText};">
-            © ${year} The Narrative Network · <a href="${home}" style="color:${C.footText};">${isPublic ? 'thenarrativenetwork.org' : 'Editorial Desk'}</a>
+            © ${year} The Narrative Network · <a href="${home}" style="color:${C.footText};">${isPublic ? 'thenarrativenetwork.org' : isWriter ? 'Writer portal' : 'Editorial Desk'}</a>
           </div>
         </td></tr>
       </table>
@@ -171,7 +179,8 @@ export function renderEmail(content: EmailContent, to: EmailAudience = { audienc
 
 // Plain-text copy for apps that don't show HTML
 function renderText(content: EmailContent, to: EmailAudience) {
-  const out = [`${to.audience === 'public' ? 'THE NARRATIVE NETWORK' : 'TNN EDITORIAL DESK'} · ${content.label.toUpperCase()}`, '', content.title]
+  const heading = to.audience === 'public' ? 'THE NARRATIVE NETWORK' : to.audience === 'writer' ? 'TNN WRITER PORTAL' : 'TNN EDITORIAL DESK'
+  const out = [`${heading} · ${content.label.toUpperCase()}`, '', content.title]
   if (content.intro) out.push('', content.intro)
   for (const s of content.sections ?? []) {
     out.push('', `${s.heading}${s.rows ? ` (${s.rows.length})` : ''}`)
@@ -184,7 +193,11 @@ function renderText(content: EmailContent, to: EmailAudience) {
     '',
     '—',
     'The Narrative Network · Shaping Africa’s Story, One Voice at a Time.',
-    to.audience === 'public' ? `${to.reason} Unsubscribe: ${to.unsubscribeUrl}` : 'For approved TNN Editorial Desk accounts only.',
+    to.audience === 'public'
+      ? `${to.reason} Unsubscribe: ${to.unsubscribeUrl}`
+      : to.audience === 'writer'
+        ? 'You’re receiving this because you write for TNN through the writer portal.'
+        : 'For approved TNN Editorial Desk accounts only.',
   )
   return out.join('\n')
 }

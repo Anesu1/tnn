@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 
 import { joinWithInvite, requireWriter, signIn, signOut } from '@/lib/writer-auth'
 import { getWriteClient } from '@/sanity/lib/writeClient'
+import { notifySubmitted } from '@/lib/story-notify'
 import { STORY_TYPES } from '@/lib/site/config'
 
 export type FormState = { error?: string }
@@ -99,10 +100,23 @@ function toBlocks(text: string) {
 
 
 // Writers can only touch their own stories while they are still unpublished drafts
+type OwnDraft = { _id: string; mainImage?: unknown; content?: Block[]; editorNote?: string }
+type Block = { _type: string; children?: { text?: string }[] }
+
+// The story text as the writer's edit form shows it: paragraphs of plain text
+// (same as app/write/[id]/page.tsx; not exported, because a "use server" file may only export actions)
+function blocksToText(content: Block[] | undefined) {
+  return (content ?? [])
+    .filter((block) => block._type === 'block')
+    .map((block) => (block.children ?? []).map((child) => child.text ?? '').join(''))
+    .join('\n\n')
+}
+const sameText = (a: string, b: string) => a.replace(/\s+/g, ' ').trim() === b.replace(/\s+/g, ' ').trim()
+
 async function findOwnDraft(id: string, writerId: string) {
   if (!/^[A-Za-z0-9-]+$/.test(id)) return null
-  return getWriteClient().fetch<{ _id: string; mainImage?: unknown } | null>(
-    `*[_id == $draftId && submittedBy._ref == $writerId][0]{_id, mainImage}`,
+  return getWriteClient().fetch<OwnDraft | null>(
+    `*[_id == $draftId && submittedBy._ref == $writerId][0]{_id, mainImage, content, editorNote}`,
     { draftId: `drafts.${id}`, writerId },
   )
 }
@@ -157,7 +171,6 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
     title,
     slug: { _type: 'slug', current: slug },
     excerpt,
-    content: toBlocks(content),
     region,
     storyType,
     categories: validCategories.map((ref) => ({ _type: 'reference', _ref: ref, _key: key() })),
@@ -165,6 +178,15 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
     // Every submission goes (back) into the chief editor's approval queue
     reviewStatus: 'submitted',
   }
+  // The story text is only replaced when the writer changed it. The edit form is plain text, so
+  // resaving unchanged text would wipe headings, links and photos the editor added in the Studio.
+  if (!existing || !sameText(blocksToText(existing.content), content)) {
+    fields.content = toBlocks(content)
+  }
+  // The editor's note has been dealt with: keep it as "last note" for the editor to check against,
+  // and clear it so a new send-back starts with a fresh note
+  if (existing?.editorNote) fields.previousEditorNote = existing.editorNote
+
   // Writers are author documents, so their own profile is the byline. Only set it on
   // first submission: the chief editor may change the byline while reviewing.
   if (!id) {
@@ -186,7 +208,7 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
 
   try {
     if (id) {
-      await client.patch(draftId).set(fields).commit()
+      await client.patch(draftId).set(fields).unset(['editorNote']).commit()
     } else {
       // "Published at" is filled in when the chief editor publishes (sanity/actions/setPublishedAt.ts)
       await client.create({ _id: draftId, _type: 'newsItem', ...fields })
@@ -195,6 +217,15 @@ export async function saveStoryAction(_prev: FormState, formData: FormData): Pro
     console.error('Failed to save story', err)
     return { error: 'Something went wrong saving your story. Please try again.' }
   }
+
+  // Tell the reviewer. Several saves within ten minutes send one email.
+  await notifySubmitted({
+    baseId,
+    title,
+    writerName: writer.name,
+    resubmitted: Boolean(id),
+    key: String(Math.floor(Date.now() / 600_000)),
+  }).catch((err) => console.error('Review email failed', err))
 
   revalidatePath('/write')
   redirect('/write?saved=1')
