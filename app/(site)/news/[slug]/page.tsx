@@ -138,7 +138,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <Icon name="send" />
             Share on WhatsApp
           </a>
-          <a href={correction}>
+          {/* nofollow: every story links here with its own address, and Google was crawling each copy of the contact page */}
+          <a href={correction} rel="nofollow">
             <Icon name="flag" />
             Request a correction
           </a>

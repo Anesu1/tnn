@@ -36,8 +36,27 @@ const nextConfig = {
       { source: "/tech", destination: "/latest", statusCode: 301 },
       { source: "/advertise", destination: "/partnerships", statusCode: 301 },
       { source: "/privacy-policy", destination: "/privacy", statusCode: 301 },
-      { source: "/terms-of-service", destination: "/privacy", statusCode: 301 },
       { source: "/login", destination: "/write/login", statusCode: 301 },
+      // Earlier section addresses, one hop straight to the current section page. Breaking news is
+      // now a label on stories, not a section.
+      { source: "/category/politics-governance", destination: "/category/politics", statusCode: 301 },
+      { source: "/category/politics-and-governance", destination: "/category/politics", statusCode: 301 },
+      { source: "/category/business-economy", destination: "/category/business", statusCode: 301 },
+      { source: "/category/business-and-economy", destination: "/category/business", statusCode: 301 },
+      { source: "/category/health-and-education", destination: "/category/health-education", statusCode: 301 },
+      { source: "/category/community-society", destination: "/category/community", statusCode: 301 },
+      { source: "/category/community-and-society", destination: "/category/community", statusCode: 301 },
+      { source: "/category/social-community-affairs", destination: "/category/community", statusCode: 301 },
+      { source: "/category/social-and-community-affairs", destination: "/category/community", statusCode: 301 },
+      { source: "/category/sports-culture", destination: "/category/sport-culture", statusCode: 301 },
+      { source: "/category/sports-and-culture", destination: "/category/sport-culture", statusCode: 301 },
+      { source: "/category/sports-entertainment", destination: "/category/sport-culture", statusCode: 301 },
+      { source: "/category/sports-and-entertainment", destination: "/category/sport-culture", statusCode: 301 },
+      { source: "/category/entertainment-lifestyle", destination: "/category/entertainment", statusCode: 301 },
+      { source: "/category/entertainment-and-lifestyle", destination: "/category/entertainment", statusCode: 301 },
+      { source: "/category/creative-cultural-industries", destination: "/category/entertainment", statusCode: 301 },
+      { source: "/category/creative-and-cultural-industries", destination: "/category/entertainment", statusCode: 301 },
+      { source: "/category/breaking-news", destination: "/latest", statusCode: 301 },
     ]
   },
   experimental: {

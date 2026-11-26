@@ -1,4 +1,4 @@
-import { notFound, permanentRedirect } from "next/navigation"
+import { notFound } from "next/navigation"
 
 import { FollowBand, PageTitle } from "@/components/site/chrome"
 import { FeatureStory, StoryGrid } from "@/components/site/stories"
@@ -10,26 +10,6 @@ export const revalidate = 60
 
 // Older links used a Sanity category key or slug (e.g. /category/politics-governance), or a
 // section that has since been renamed or replaced
-const LEGACY_SLUGS: Record<string, string> = {
-  "politics-governance": "politics",
-  "politics-and-governance": "politics",
-  "business-economy": "business",
-  "business-and-economy": "business",
-  "health-and-education": "health-education",
-  "community-society": "community",
-  "community-and-society": "community",
-  "social-community-affairs": "community",
-  "social-and-community-affairs": "community",
-  "sports-culture": "sport-culture",
-  "sports-and-culture": "sport-culture",
-  "sports-entertainment": "sport-culture",
-  "sports-and-entertainment": "sport-culture",
-  "entertainment-lifestyle": "entertainment",
-  "entertainment-and-lifestyle": "entertainment",
-  "creative-cultural-industries": "entertainment",
-  "creative-and-cultural-industries": "entertainment",
-}
-
 export function generateStaticParams() {
   return SECTIONS.map((section) => ({ slug: section.slug }))
 }
@@ -46,9 +26,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params
   const section = SECTIONS.find((s) => s.slug === slug)
   if (!section) {
-    if (LEGACY_SLUGS[slug]) permanentRedirect(`/category/${LEGACY_SLUGS[slug]}`)
-    // Breaking news is now a label on stories, not a section
-    if (slug === "breaking-news") permanentRedirect("/latest")
+    // Old section addresses are redirected in next.config.mjs
     notFound()
   }
 
