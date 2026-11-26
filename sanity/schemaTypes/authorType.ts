@@ -8,7 +8,7 @@ import {AccessCodeInput} from '../components/AccessCodeInput'
 // "writerAccount.<authorId>" documents (see lib/writer-auth.ts).
 export default defineType({
   name: 'author',
-  title: 'Reporter',
+  title: 'Author',
   type: 'document',
   icon: UserIcon,
   fieldsets: [
@@ -28,8 +28,7 @@ export default defineType({
     }),
     defineField({
       name: 'slug',
-      title: 'Web address',
-      description: 'Their page: thenarrativenetwork.org/authors/... Click Generate. Don’t change it later.',
+      title: 'Slug',
       type: 'slug',
       options: {
         source: 'name',
