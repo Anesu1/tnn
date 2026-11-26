@@ -5,10 +5,17 @@ import { FollowBand } from "@/components/site/chrome"
 import { SectionHead, StoryGrid, StoryImg } from "@/components/site/stories"
 import { formatDateTime, SECTIONS, SITE_NAME, SITE_URL, STORY_TYPES } from "@/lib/site/config"
 import { pageMetadata } from "@/lib/site/metadata"
-import { getStoriesWith, getStory, imageSources, readTimeFor, storyUrl, type FullStory } from "@/lib/site/news"
+import { getStories, getStoriesWith, getStory, imageSources, readTimeFor, storyUrl, type FullStory } from "@/lib/site/news"
 import { Icon } from "@/components/site/icons"
 
 export const revalidate = 60
+
+// Without this the route is rendered on every request and never cached. Current stories are built
+// at deploy; newer ones are rendered on their first visit, then cached and refreshed every minute.
+export async function generateStaticParams() {
+  const stories = await getStories()
+  return stories.map((story) => ({ slug: story.slug }))
+}
 
 function absoluteImage(story: FullStory) {
   const src = imageSources(story.image).large

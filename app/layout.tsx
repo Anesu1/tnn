@@ -17,11 +17,15 @@ export const metadata: Metadata = {
     types: { "application/rss+xml": [{ url: "/feed.xml", title: "TNN latest news" }] },
   },
   // Lets Google show large image previews, full snippets and video previews. Discover and Top
-  // Stories only use large images when max-image-preview:large is set. Pages that must stay out of
-  // search (desk, write, 404) set their own robots, which replaces this.
+  // Stories only use large images when max-image-preview:large is set. Bing reads the same
+  // settings from the general robots tag. Pages that must stay out of search (desk, write, 404)
+  // set their own robots, which replaces this.
   robots: {
     index: true,
     follow: true,
+    "max-image-preview": "large",
+    "max-snippet": -1,
+    "max-video-preview": -1,
     googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
   },
 }

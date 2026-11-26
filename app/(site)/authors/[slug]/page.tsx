@@ -10,6 +10,11 @@ import { client } from "@/sanity/lib/client"
 
 export const revalidate = 60
 
+// Rendered on first visit, then cached and refreshed every minute (without this, every request renders)
+export function generateStaticParams() {
+  return []
+}
+
 type Author = {
   _id: string
   name: string
