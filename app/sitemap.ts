@@ -17,6 +17,7 @@ const PAGES = [
   "/corrections",
   "/privacy",
   "/newsletter",
+  "/authors",
   "/partnerships",
   "/media-kit",
 ]

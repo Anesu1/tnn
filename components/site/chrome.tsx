@@ -27,6 +27,7 @@ const SUB_NAV = [
   { href: "/investigations", label: "Investigations" },
   { href: "/interviews", label: "Interviews" },
   { href: "/opinion", label: "Opinion" },
+  { href: "/authors", label: "Reporters" },
   { href: "/about", label: "About" },
   { href: "/partnerships", label: "Advertise & partner" },
   { href: "/contact", label: "Contact" },

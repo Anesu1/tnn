@@ -114,7 +114,7 @@ export default async function AuthorPage({ params }: { params: Promise<{ slug: s
             </ul>
           )}
           <p>
-            <a href="/contact?type=correction">Contact the newsroom</a> ·{" "}
+            <a href="/authors">All reporters</a> · <a href="/contact?type=correction">Contact the newsroom</a> ·{" "}
             <a href="/editorial-standards">Editorial standards</a>
           </p>
         </article>
